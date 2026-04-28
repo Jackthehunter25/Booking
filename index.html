@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Book a Service — Kennesaw Standard Exterior Co.</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700;900&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+
+<!-- ─── SUPABASE CLIENT ─── -->
+<!-- Replace the two placeholder values below with your real Supabase credentials -->
+<!-- Find them at: https://app.supabase.com → Project Settings → API -->
+<script>
+  const SUPABASE_URL  = 'https://fzwtxrxrxewmtkbqzwpn.supabase.co';
+  const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ6d3R4cnhyeGV3bXRrYnF6d3BuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzczMzc5ODgsImV4cCI6MjA5MjkxMzk4OH0.ChgpFoQiSlCvNjUVg_RxG91wJpdccKZnkr70KTPyunw';
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --white:   #ffffff;
+  --off:     #f7f6f2;
+  --border:  #e5e3dc;
+  --green:   #2a5c45;
+  --green-l: #e8f2ed;
+  --green-m: #b4d4c4;
+  --ink:     #111810;
+  --ink2:    #3d4038;
+  --muted:   #8a8f82;
+  --danger:  #c0392b;
+  --amber:   #b45309;
+  --amber-l: #fef3c7;
+  --radius:  14px;
+  --shadow:  0 2px 16px rgba(17,24,16,.06);
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background: var(--off);
+  color: var(--ink);
+  min-height: 100vh;
+}
+
+/* ─── NAV ─── */
+nav {
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 40px; height: 64px;
+  position: sticky; top: 0; z-index: 100;
+}
+.logo { font-family: 'Fraunces', serif; font-size: 17px; font-weight: 700; color: var(--ink); letter-spacing: -.3px; line-height: 1.15; }
+.logo small { display: block; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 10px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); }
+.nav-phone { font-size: 13px; font-weight: 600; color: var(--green); text-decoration: none; display: flex; align-items: center; gap: 6px; }
+
+/* ─── TRUST BAR ─── */
+.trust-bar {
+  background: var(--green);
+  padding: 9px 40px;
+  display: flex; align-items: center; justify-content: center; gap: 28px;
+  flex-wrap: wrap;
+}
+.trust-item { display: flex; align-items: center; gap: 6px; color: rgba(255,255,255,.9); font-size: 12px; font-weight: 500; }
+.trust-item svg { opacity: .75; }
+
+/* ─── PROGRESS ─── */
+.prog-wrap { background: var(--white); border-bottom: 1px solid var(--border); padding: 0 40px; }
+.prog-inner { max-width: 640px; margin: 0 auto; display: flex; align-items: center; padding: 16px 0; }
+.p-step { display: flex; align-items: center; gap: 8px; flex: 1; }
+.p-step:last-child { flex: none; }
+.p-dot { width: 30px; height: 30px; border-radius: 50%; border: 2px solid var(--border); background: var(--white); color: var(--muted); font-size: 12px; font-weight: 600; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all .25s; }
+.p-dot.active { border-color: var(--green); color: var(--green); background: var(--green-l); }
+.p-dot.done   { border-color: var(--green); background: var(--green); color: #fff; }
+.p-label { font-size: 12px; font-weight: 600; color: var(--muted); transition: color .25s; white-space: nowrap; }
+.p-step.active .p-label { color: var(--ink); }
+.p-line { flex: 1; height: 2px; background: var(--border); margin: 0 10px; border-radius: 2px; transition: background .25s; }
+.p-line.done { background: var(--green); }
+
+/* ─── PAGE ─── */
+.page { max-width: 640px; margin: 0 auto; padding: 40px 20px 80px; }
+.step { display: none; }
+.step.active { display: block; animation: up .3s ease; }
+@keyframes up { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ─── HEADERS ─── */
+.eyebrow { font-size: 11px; font-weight: 600; letter-spacing: 2.5px; text-transform: uppercase; color: var(--green); margin-bottom: 10px; }
+.step-h { font-family: 'Fraunces', serif; font-size: 36px; font-weight: 700; line-height: 1.1; letter-spacing: -.5px; color: var(--ink); margin-bottom: 6px; }
+.step-sub { font-size: 15px; color: var(--muted); margin-bottom: 36px; }
+
+/* ─── PRICE BADGE ─── */
+.price-badge {
+  display: none;
+  align-items: center; gap: 8px;
+  background: var(--amber-l);
+  border: 1px solid #fde68a;
+  border-radius: 10px;
+  padding: 10px 16px;
+  margin-bottom: 20px;
+  font-size: 14px;
+  color: var(--amber);
+  font-weight: 600;
+}
+.price-badge.show { display: flex; }
+.price-badge span { font-size: 13px; font-weight: 400; color: #92400e; }
+
+/* ─── SERVICE CARDS ─── */
+.svc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 28px; }
+.svc { background: var(--white); border: 2px solid var(--border); border-radius: var(--radius); padding: 22px 18px; cursor: pointer; transition: border-color .2s, transform .15s, box-shadow .2s; position: relative; }
+.svc:hover { border-color: var(--green-m); transform: translateY(-2px); box-shadow: var(--shadow); }
+.svc.sel   { border-color: var(--green); background: var(--green-l); }
+.svc-check { position: absolute; top: 14px; right: 14px; width: 20px; height: 20px; border-radius: 50%; background: var(--green); color: #fff; font-size: 10px; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity .2s; }
+.svc.sel .svc-check { opacity: 1; }
+.svc-icon { font-size: 28px; margin-bottom: 12px; display: block; }
+.svc-name { font-family: 'Fraunces', serif; font-size: 15px; font-weight: 600; color: var(--ink); margin-bottom: 5px; }
+.svc-desc { font-size: 12px; color: var(--muted); line-height: 1.55; }
+
+/* ─── CARD ─── */
+.card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 12px; box-shadow: var(--shadow); }
+.card-title { font-size: 11px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 18px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+
+/* ─── FIELDS ─── */
+.row  { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+.field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; }
+.field:last-child { margin-bottom: 0; }
+label { font-size: 12px; font-weight: 600; color: var(--ink2); }
+label .req { color: var(--green); }
+
+input, select, textarea {
+  background: var(--off); border: 1.5px solid var(--border); border-radius: 9px;
+  color: var(--ink); font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px;
+  padding: 10px 13px; outline: none;
+  transition: border-color .2s, background .2s;
+  width: 100%; -webkit-appearance: none;
+}
+input:focus, select:focus, textarea:focus { border-color: var(--green); background: var(--white); }
+input::placeholder, textarea::placeholder { color: var(--muted); }
+textarea { resize: vertical; min-height: 80px; }
+.field.err input, .field.err select, .field.err textarea { border-color: var(--danger); }
+.err-msg { font-size: 11px; color: var(--danger); display: none; }
+.field.err .err-msg { display: block; }
+
+/* ─── CHIPS ─── */
+.chips { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 2px; }
+.chip { background: var(--off); border: 1.5px solid var(--border); border-radius: 8px; color: var(--ink2); cursor: pointer; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 13px; font-weight: 500; padding: 7px 14px; transition: all .15s; user-select: none; }
+.chip:hover { border-color: var(--green); color: var(--green); }
+.chip.on { background: var(--green-l); border-color: var(--green); color: var(--green); font-weight: 600; }
+
+/* ─── PACKAGES ─── */
+.pkg-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
+.pkg { background: var(--off); border: 2px solid var(--border); border-radius: 11px; cursor: pointer; padding: 16px 12px; text-align: center; transition: all .15s; }
+.pkg:hover { border-color: var(--green-m); }
+.pkg.on { background: var(--green-l); border-color: var(--green); }
+.pkg-name { font-family: 'Fraunces', serif; font-size: 14px; font-weight: 600; color: var(--ink); margin-bottom: 3px; }
+.pkg-price { font-size: 12px; font-weight: 600; color: var(--green); margin-bottom: 6px; }
+.pkg-feat { font-size: 11px; color: var(--muted); line-height: 1.45; }
+
+/* ─── TIME SLOTS ─── */
+.time-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; }
+.slot { background: var(--off); border: 1.5px solid var(--border); border-radius: 9px; cursor: pointer; font-size: 13px; font-weight: 500; color: var(--ink2); padding: 10px 4px; text-align: center; transition: all .15s; }
+.slot:hover { border-color: var(--green); color: var(--green); }
+.slot.on  { background: var(--green-l); border-color: var(--green); color: var(--green); font-weight: 600; }
+.slot.off { opacity: .35; cursor: not-allowed; }
+
+/* ─── BUTTONS ─── */
+.btns { display: flex; gap: 10px; margin-top: 28px; }
+.btn { border: none; border-radius: 10px; cursor: pointer; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; font-weight: 600; padding: 13px 24px; transition: all .15s; }
+.btn-p { background: var(--green); color: #fff; flex: 1; box-shadow: 0 2px 10px rgba(42,92,69,.22); }
+.btn-p:hover { background: #234e3b; transform: translateY(-1px); }
+.btn-p:disabled { opacity: .5; cursor: not-allowed; transform: none !important; }
+.btn-s { background: var(--white); border: 1.5px solid var(--border); color: var(--ink2); }
+.btn-s:hover { border-color: var(--ink2); }
+
+/* ─── REVIEW ROWS ─── */
+.review-row { display: flex; justify-content: space-between; align-items: flex-start; padding: 11px 0; border-bottom: 1px solid var(--border); font-size: 14px; gap: 16px; }
+.review-row:last-child { border-bottom: none; }
+.rk { color: var(--muted); font-size: 13px; flex-shrink: 0; }
+.rv { font-weight: 600; text-align: right; }
+
+/* ─── SUCCESS ─── */
+.success-wrap { text-align: center; padding: 12px 0 20px; }
+.success-icon { width: 60px; height: 60px; border-radius: 50%; background: var(--green-l); border: 2px solid var(--green-m); display: flex; align-items: center; justify-content: center; font-size: 24px; margin: 0 auto 18px; }
+.success-h { font-family: 'Fraunces', serif; font-size: 28px; font-weight: 700; margin-bottom: 6px; }
+.success-sub { color: var(--muted); font-size: 15px; margin-bottom: 28px; }
+.booking-id { display: inline-block; background: var(--off); border: 1px solid var(--border); border-radius: 8px; font-size: 12px; color: var(--muted); padding: 6px 14px; margin-top: 16px; }
+.booking-id span { color: var(--green); font-weight: 700; }
+
+/* ─── SUBMIT SPINNER ─── */
+.spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,.4); border-top-color: #fff; border-radius: 50%; animation: spin .7s linear infinite; vertical-align: middle; margin-right: 8px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ─── ERROR TOAST ─── */
+.toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #1f1f1f; color: #fff; font-size: 14px; font-weight: 500; padding: 12px 22px; border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,.25); z-index: 999; opacity: 0; pointer-events: none; transition: opacity .3s; }
+.toast.show { opacity: 1; }
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 560px) {
+  nav { padding: 0 20px; }
+  .prog-wrap { padding: 0 20px; }
+  .trust-bar { padding: 9px 16px; gap: 14px; }
+  .p-label { display: none; }
+  .svc-grid { grid-template-columns: 1fr; }
+  .pkg-grid { grid-template-columns: 1fr 1fr; }
+  .time-grid { grid-template-columns: repeat(3,1fr); }
+  .row, .row3 { grid-template-columns: 1fr; }
+  .step-h { font-size: 28px; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">
+    Kennesaw Standard Exterior Co.
+    <small>Professional Exterior Services</small>
+  </div>
+  <a class="nav-phone" href="tel:+17705550100">
+    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.09 9.82 19.79 19.79 0 01.06 1.18 2 2 0 012 0h3a2 2 0 012 1.72c.127.96.36 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.34 1.85.573 2.81.7A2 2 0 0122 14.92z"/>
+    </svg>
+    (770) 555-0100
+  </a>
+</nav>
+
+<!-- TRUST BAR -->
+<div class="trust-bar">
+  <div class="trust-item">
+    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+    Fully Insured
+  </div>
+  <div class="trust-item">
+    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+    5-Star Local Service
+  </div>
+  <div class="trust-item">
+    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+    Response Within 15 Min
+  </div>
+  <div class="trust-item">
+    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+    Satisfaction Guaranteed
+  </div>
+</div>
+
+<!-- PROGRESS -->
+<div class="prog-wrap">
+  <div class="prog-inner">
+    <div class="p-step active" id="ps1"><div class="p-dot active" id="pd1">1</div><div class="p-label">Service</div></div>
+    <div class="p-line" id="pl1"></div>
+    <div class="p-step" id="ps2"><div class="p-dot" id="pd2">2</div><div class="p-label">Details</div></div>
+    <div class="p-line" id="pl2"></div>
+    <div class="p-step" id="ps3"><div class="p-dot" id="pd3">3</div><div class="p-label">Schedule</div></div>
+    <div class="p-line" id="pl3"></div>
+    <div class="p-step" id="ps4"><div class="p-dot" id="pd4">4</div><div class="p-label">Confirm</div></div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<div class="page">
+
+  <!-- ══ STEP 1: SERVICE ══ -->
+  <div class="step active" id="s1">
+    <div class="eyebrow">Book Online — It Takes 2 Minutes</div>
+    <div class="step-h">What service do<br>you need?</div>
+    <div class="step-sub">Select a service to get started. We respond within 15 minutes.</div>
+
+    <div class="svc-grid">
+      <div class="svc" data-svc="detail" onclick="pickSvc(this)">
+        <div class="svc-check">✓</div>
+        <span class="svc-icon">🚗</span>
+        <div class="svc-name">Car Detailing</div>
+        <div class="svc-desc">Interior, exterior, or full detail packages for any vehicle.</div>
+      </div>
+      <div class="svc" data-svc="trash" onclick="pickSvc(this)">
+        <div class="svc-check">✓</div>
+        <span class="svc-icon">🗑️</span>
+        <div class="svc-name">Trash Can Cleaning</div>
+        <div class="svc-desc">Deep sanitization and deodorizing for residential bins.</div>
+      </div>
+      <div class="svc" data-svc="pressure" onclick="pickSvc(this)">
+        <div class="svc-check">✓</div>
+        <span class="svc-icon">💧</span>
+        <div class="svc-name">Driveway Pressure Washing</div>
+        <div class="svc-desc">Remove oil, mold, and grime from any driveway surface.</div>
+      </div>
+      <div class="svc" data-svc="window" onclick="pickSvc(this)">
+        <div class="svc-check">✓</div>
+        <span class="svc-icon">🪟</span>
+        <div class="svc-name">Window Cleaning</div>
+        <div class="svc-desc">Streak-free interior, exterior, or both. Screens available.</div>
+      </div>
+    </div>
+
+    <div class="btns">
+      <button class="btn btn-p" id="btn1" onclick="goTo(2)" disabled>Continue &rarr;</button>
+    </div>
+  </div>
+
+  <!-- ══ STEP 2: SERVICE DETAILS ══ -->
+  <div class="step" id="s2">
+    <div class="eyebrow" id="s2eye">Details</div>
+    <div class="step-h" id="s2head">Tell us more</div>
+    <div class="step-sub">The more info you give us, the better we can serve you.</div>
+
+    <!-- Price badge (shown dynamically) -->
+    <div class="price-badge" id="priceBadge">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+      <strong id="priceRange">—</strong>
+      <span id="priceNote">estimated range — final quote confirmed before service</span>
+    </div>
+
+    <!-- ── CAR DETAIL ── -->
+    <div id="f-detail" style="display:none">
+      <div class="card">
+        <div class="card-title">Vehicle Information</div>
+        <div class="row3">
+          <div class="field"><label>Year <span class="req">*</span></label><input id="carYear" type="number" placeholder="2021" min="1990" max="2026"></div>
+          <div class="field"><label>Make <span class="req">*</span></label><input id="carMake" type="text" placeholder="Toyota"></div>
+          <div class="field"><label>Model <span class="req">*</span></label><input id="carModel" type="text" placeholder="Camry"></div>
+        </div>
+        <div class="row">
+          <div class="field">
+            <label>Vehicle Type <span class="req">*</span></label>
+            <select id="carType">
+              <option value="">Select…</option>
+              <option>Sedan / Coupe</option><option>SUV / Crossover</option>
+              <option>Pickup Truck</option><option>Minivan</option>
+              <option>Sports Car</option><option>Luxury / Exotic</option>
+            </select>
+          </div>
+          <div class="field"><label>Color</label><input id="carColor" type="text" placeholder="White"></div>
+        </div>
+        <div class="field">
+          <label>Current Condition</label>
+          <select id="carCond">
+            <option value="">Select…</option>
+            <option>Light — minor dust / dirt</option>
+            <option>Moderate — needs a solid clean</option>
+            <option>Heavy — pet hair, stains, or odors</option>
+            <option>Restoration level — significant soiling</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Package</div>
+        <div class="pkg-grid">
+          <div class="pkg" onclick="pickPkg(this,'Exterior Only','$80–$120')">
+            <div class="pkg-name">Exterior</div>
+            <div class="pkg-price">From $80</div>
+            <div class="pkg-feat">Hand wash · Clay bar · Wax · Tire shine · Windows</div>
+          </div>
+          <div class="pkg" onclick="pickPkg(this,'Interior Only','$100–$140')">
+            <div class="pkg-name">Interior</div>
+            <div class="pkg-price">From $100</div>
+            <div class="pkg-feat">Vacuum · Shampoo · Wipe-down · Leather condition</div>
+          </div>
+          <div class="pkg" onclick="pickPkg(this,'Full Detail','$160–$220')">
+            <div class="pkg-name">Full Detail</div>
+            <div class="pkg-price">From $160</div>
+            <div class="pkg-feat">Complete interior + exterior — most popular</div>
+          </div>
+        </div>
+        <input type="hidden" id="carPkg">
+      </div>
+
+      <div class="card">
+        <div class="card-title">Add-ons (optional)</div>
+        <div class="chips">
+          <div class="chip" onclick="addOn(this)">Paint Correction</div>
+          <div class="chip" onclick="addOn(this)">Pet Hair Removal</div>
+          <div class="chip" onclick="addOn(this)">Odor Elimination</div>
+          <div class="chip" onclick="addOn(this)">Ceramic Coating</div>
+          <div class="chip" onclick="addOn(this)">Engine Bay Clean</div>
+          <div class="chip" onclick="addOn(this)">Headlight Restoration</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Additional Notes</div>
+        <textarea id="detailNotes" placeholder="Specific concerns, damage areas, or instructions…"></textarea>
+      </div>
+    </div>
+
+    <!-- ── TRASH ── -->
+    <div id="f-trash" style="display:none">
+      <div class="card">
+        <div class="card-title">Bin Details</div>
+        <div class="row">
+          <div class="field">
+            <label>Number of Bins <span class="req">*</span></label>
+            <select id="trashCount" onchange="updateTrashPrice()">
+              <option value="">Select…</option>
+              <option value="1">1 bin</option><option value="2">2 bins</option>
+              <option value="3">3 bins</option><option value="4+">4+ bins</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Bin Types <span class="req">*</span></label>
+            <select id="trashType">
+              <option value="">Select…</option>
+              <option>Trash only</option><option>Recycling only</option>
+              <option>Trash + Recycling</option><option>Trash + Recycling + Yard Waste</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label>Bin Size</label>
+          <div class="chips">
+            <div class="chip" onclick="solo(this,'trashSize')">32 gal</div>
+            <div class="chip" onclick="solo(this,'trashSize')">64 gal</div>
+            <div class="chip" onclick="solo(this,'trashSize')">96 gal</div>
+          </div>
+          <input type="hidden" id="trashSize">
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Frequency</div>
+        <div class="chips">
+          <div class="chip" onclick="solo(this,'trashFreq')">One-Time</div>
+          <div class="chip" onclick="solo(this,'trashFreq')">Monthly</div>
+          <div class="chip" onclick="solo(this,'trashFreq')">Bi-Weekly</div>
+          <div class="chip" onclick="solo(this,'trashFreq')">Weekly</div>
+        </div>
+        <input type="hidden" id="trashFreq">
+      </div>
+      <div class="card">
+        <div class="card-title">Add-ons (optional)</div>
+        <div class="chips">
+          <div class="chip" onclick="addOn(this)">Deodorizer Treatment</div>
+          <div class="chip" onclick="addOn(this)">Disinfectant Spray</div>
+          <div class="chip" onclick="addOn(this)">Bin Labeling</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Access Notes</div>
+        <textarea id="trashNotes" placeholder="Gate code, bin location, anything helpful…"></textarea>
+      </div>
+    </div>
+
+    <!-- ── PRESSURE ── -->
+    <div id="f-pressure" style="display:none">
+      <div class="card">
+        <div class="card-title">Driveway Details</div>
+        <div class="row">
+          <div class="field">
+            <label>Surface Type <span class="req">*</span></label>
+            <select id="driveType">
+              <option value="">Select…</option>
+              <option>Concrete</option><option>Asphalt</option>
+              <option>Brick / Pavers</option><option>Exposed Aggregate</option><option>Stamped Concrete</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Approx. Area <span class="req">*</span></label>
+            <select id="driveSqft" onchange="updatePressurePrice()">
+              <option value="">Select…</option>
+              <option value="u500">Under 500 sq ft</option>
+              <option value="500-1000">500–1,000 sq ft</option>
+              <option value="1000-2000">1,000–2,000 sq ft</option>
+              <option value="2000+">2,000+ sq ft</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label>Staining Level</label>
+          <div class="chips">
+            <div class="chip" onclick="solo(this,'driveStain')">Light</div>
+            <div class="chip" onclick="solo(this,'driveStain')">Moderate</div>
+            <div class="chip" onclick="solo(this,'driveStain')">Heavy</div>
+            <div class="chip" onclick="solo(this,'driveStain')">Oil Stains</div>
+          </div>
+          <input type="hidden" id="driveStain">
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Additional Areas (optional)</div>
+        <div class="chips">
+          <div class="chip" onclick="addOn(this)">Sidewalk / Walkway</div>
+          <div class="chip" onclick="addOn(this)">Patio / Deck</div>
+          <div class="chip" onclick="addOn(this)">Retaining Wall</div>
+          <div class="chip" onclick="addOn(this)">Pool Deck</div>
+          <div class="chip" onclick="addOn(this)">House Exterior</div>
+          <div class="chip" onclick="addOn(this)">Fence</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Access Notes</div>
+        <textarea id="pressureNotes" placeholder="Gate access, stain locations, delicate areas to avoid…"></textarea>
+      </div>
+    </div>
+
+    <!-- ── WINDOW ── -->
+    <div id="f-window" style="display:none">
+      <div class="card">
+        <div class="card-title">Window Details</div>
+        <div class="row">
+          <div class="field">
+            <label>Number of Windows <span class="req">*</span></label>
+            <select id="winCount" onchange="updateWindowPrice()">
+              <option value="">Select…</option>
+              <option value="1-5">1–5 windows</option>
+              <option value="6-10">6–10 windows</option>
+              <option value="11-20">11–20 windows</option>
+              <option value="20+">20+ windows</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Home Stories <span class="req">*</span></label>
+            <select id="winStories">
+              <option value="">Select…</option>
+              <option>Single story</option><option>Two story</option><option>Three+ story</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label>Scope <span class="req">*</span></label>
+          <div class="chips">
+            <div class="chip" onclick="solo(this,'winScope')">Interior Only</div>
+            <div class="chip" onclick="solo(this,'winScope')">Exterior Only</div>
+            <div class="chip" onclick="solo(this,'winScope')">Interior + Exterior</div>
+          </div>
+          <input type="hidden" id="winScope">
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Add-ons (optional)</div>
+        <div class="chips">
+          <div class="chip" onclick="addOn(this)">Screen Cleaning</div>
+          <div class="chip" onclick="addOn(this)">Track & Sill Deep Clean</div>
+          <div class="chip" onclick="addOn(this)">Skylight Cleaning</div>
+          <div class="chip" onclick="addOn(this)">Storm Windows</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Access Notes</div>
+        <textarea id="windowNotes" placeholder="Alarm codes, pets, window type specifics…"></textarea>
+      </div>
+    </div>
+
+    <div class="btns">
+      <button class="btn btn-s" onclick="goTo(1)">&larr; Back</button>
+      <button class="btn btn-p" onclick="goTo(3)">Continue &rarr;</button>
+    </div>
+  </div>
+
+  <!-- ══ STEP 3: CONTACT + SCHEDULE ══ -->
+  <div class="step" id="s3">
+    <div class="eyebrow">Schedule</div>
+    <div class="step-h">Contact &amp; Availability</div>
+    <div class="step-sub">We'll text you within 10–15 minutes to confirm your appointment.</div>
+
+    <div class="card">
+      <div class="card-title">Your Information</div>
+      <div class="row">
+        <div class="field" id="ef-fn"><label>First Name <span class="req">*</span></label><input id="fname" type="text" placeholder="Jackson"><div class="err-msg">Required</div></div>
+        <div class="field" id="ef-ln"><label>Last Name <span class="req">*</span></label><input id="lname" type="text" placeholder="Smith"><div class="err-msg">Required</div></div>
+      </div>
+      <div class="row">
+        <div class="field" id="ef-em"><label>Email <span class="req">*</span></label><input id="email" type="email" placeholder="you@email.com"><div class="err-msg">Enter a valid email</div></div>
+        <div class="field" id="ef-ph"><label>Phone <span class="req">*</span></label><input id="phone" type="tel" placeholder="(770) 555-0100"><div class="err-msg">Required</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Service Address</div>
+      <div class="field" id="ef-addr"><label>Street Address <span class="req">*</span></label><input id="addr" type="text" placeholder="123 Main Street"><div class="err-msg">Required</div></div>
+      <div class="row3">
+        <div class="field" id="ef-city"><label>City <span class="req">*</span></label><input id="city" type="text" placeholder="Kennesaw"><div class="err-msg">Required</div></div>
+        <div class="field"><label>State</label><input id="state" type="text" placeholder="GA" maxlength="2"></div>
+        <div class="field" id="ef-zip"><label>ZIP <span class="req">*</span></label><input id="zip" type="text" placeholder="30144" maxlength="5"><div class="err-msg">Required</div></div>
+      </div>
+      <div class="field"><label>Gate / Access Code</label><input id="gate" type="text" placeholder="Leave blank if not needed"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Preferred Date</div>
+      <div class="field" id="ef-date">
+        <label>Date <span class="req">*</span></label>
+        <input id="bdate" type="date">
+        <div class="err-msg">Please select a date</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Preferred Arrival Window</div>
+      <div class="time-grid">
+        <div class="slot" onclick="pickTime(this)">8–9 AM</div>
+        <div class="slot" onclick="pickTime(this)">9–10 AM</div>
+        <div class="slot" onclick="pickTime(this)">10–11 AM</div>
+        <div class="slot" onclick="pickTime(this)">11 AM–12</div>
+        <div class="slot" onclick="pickTime(this)">12–1 PM</div>
+        <div class="slot" onclick="pickTime(this)">1–2 PM</div>
+        <div class="slot" onclick="pickTime(this)">2–3 PM</div>
+        <div class="slot" onclick="pickTime(this)">3–4 PM</div>
+        <div class="slot" onclick="pickTime(this)">4–5 PM</div>
+        <div class="slot off">5–6 PM</div>
+        <div class="slot off">6–7 PM</div>
+        <div class="slot off">Unavailable</div>
+      </div>
+      <input type="hidden" id="btime">
+    </div>
+
+    <div class="card">
+      <div class="card-title">How did you hear about us?</div>
+      <select id="referral">
+        <option value="">Select…</option>
+        <option>Google Search</option><option>Instagram / Facebook</option>
+        <option>YouTube</option><option>Friend or Family</option>
+        <option>Nextdoor</option><option>Flyer / Door Hanger</option><option>Other</option>
+      </select>
+    </div>
+
+    <div class="btns">
+      <button class="btn btn-s" onclick="goTo(2)">&larr; Back</button>
+      <button class="btn btn-p" onclick="goTo(4)">Review Booking &rarr;</button>
+    </div>
+  </div>
+
+  <!-- ══ STEP 4: REVIEW + SUBMIT ══ -->
+  <div class="step" id="s4">
+    <div class="eyebrow">Almost Done</div>
+    <div class="step-h">Review your booking</div>
+    <div class="step-sub">Everything look right? Hit confirm and we'll be in touch within 15 minutes.</div>
+    <div class="card"><div id="reviewRows"></div></div>
+    <div class="btns">
+      <button class="btn btn-s" onclick="goTo(3)">&larr; Edit</button>
+      <button class="btn btn-p" id="submitBtn" onclick="submitBooking()">Confirm Booking ✓</button>
+    </div>
+  </div>
+
+  <!-- ══ SUCCESS ══ -->
+  <div class="step" id="s5">
+    <div class="card">
+      <div class="success-wrap">
+        <div class="success-icon">✓</div>
+        <div class="success-h">You're Booked!</div>
+        <div class="success-sub">
+          We'll text <strong id="successPhone"></strong> within 10–15 minutes to confirm.<br>
+          Questions? Call us at <a href="tel:+17705550100" style="color:var(--green);font-weight:600;">(770) 555-0100</a>
+        </div>
+        <div id="successRows"></div>
+        <div class="booking-id">Booking ID: <span id="bid"></span></div>
+      </div>
+    </div>
+    <div class="btns" style="margin-top:16px;">
+      <button class="btn btn-p" onclick="location.reload()">Book Another Service</button>
+    </div>
+  </div>
+
+</div><!-- /page -->
+
+<script>
+// ─────────────────────────────────────────────
+// INIT SUPABASE
+// ─────────────────────────────────────────────
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+
+// ─────────────────────────────────────────────
+// STATE
+// ─────────────────────────────────────────────
+let curStep = 1;
+let selSvc  = null;
+let selTime = null;
+let addons  = [];
+
+// Min date = tomorrow
+const td = new Date(); td.setDate(td.getDate() + 1);
+document.getElementById('bdate').min = td.toISOString().split('T')[0];
+
+const SVC_LABELS = {
+  detail:   '🚗 Car Detailing',
+  trash:    '🗑️ Trash Can Cleaning',
+  pressure: '💧 Driveway Pressure Washing',
+  window:   '🪟 Window Cleaning'
+};
+
+// ─────────────────────────────────────────────
+// PHONE FORMATTING  →  (XXX) XXX-XXXX
+// ─────────────────────────────────────────────
+document.getElementById('phone').addEventListener('input', function (e) {
+  let raw = e.target.value.replace(/\D/g, '').slice(0, 10);
+  let fmt = '';
+  if (raw.length > 0) fmt  = '(' + raw.slice(0, 3);
+  if (raw.length > 3) fmt += ') ' + raw.slice(3, 6);
+  if (raw.length > 6) fmt += '-' + raw.slice(6, 10);
+  e.target.value = fmt;
+});
+
+// ─────────────────────────────────────────────
+// PRICE ESTIMATION
+// ─────────────────────────────────────────────
+function showPrice(range, note) {
+  const badge = document.getElementById('priceBadge');
+  document.getElementById('priceRange').textContent = range;
+  document.getElementById('priceNote').textContent   = note || 'estimated range — final quote confirmed before service';
+  badge.classList.add('show');
+}
+function hidePrice() { document.getElementById('priceBadge').classList.remove('show'); }
+
+// Car detail — triggered by package selection
+function pickPkg(el, name, priceRange) {
+  document.querySelectorAll('.pkg').forEach(p => p.classList.remove('on'));
+  el.classList.add('on');
+  document.getElementById('carPkg').value = name;
+  showPrice(priceRange);
+}
+
+// Trash — triggered by bin count dropdown
+function updateTrashPrice() {
+  const prices = { '1':'$25–$35', '2':'$40–$55', '3':'$55–$70', '4+':'$70–$90+' };
+  const val = document.getElementById('trashCount').value;
+  if (val) showPrice(prices[val] || '—');
+}
+
+// Pressure washing — triggered by area dropdown
+function updatePressurePrice() {
+  const prices = { 'u500':'$80–$120', '500-1000':'$120–$180', '1000-2000':'$180–$260', '2000+':'$260–$350+' };
+  const val = document.getElementById('driveSqft').value;
+  if (val) showPrice(prices[val] || '—');
+}
+
+// Window cleaning — triggered by count dropdown
+function updateWindowPrice() {
+  const prices = { '1-5':'$60–$90', '6-10':'$90–$140', '11-20':'$140–$210', '20+':'$210–$300+' };
+  const val = document.getElementById('winCount').value;
+  if (val) showPrice(prices[val] || '—');
+}
+
+// ─────────────────────────────────────────────
+// SERVICE SELECTION
+// ─────────────────────────────────────────────
+function pickSvc(el) {
+  document.querySelectorAll('.svc').forEach(s => s.classList.remove('sel'));
+  el.classList.add('sel');
+  selSvc = el.dataset.svc;
+  document.getElementById('btn1').disabled = false;
+}
+
+// ─────────────────────────────────────────────
+// CHIP HELPERS
+// ─────────────────────────────────────────────
+function solo(el, hiddenId) {
+  el.closest('.chips').querySelectorAll('.chip').forEach(c => c.classList.remove('on'));
+  el.classList.add('on');
+  document.getElementById(hiddenId).value = el.textContent.trim();
+}
+
+function addOn(el) {
+  el.classList.toggle('on');
+  const label = el.textContent.trim();
+  if (el.classList.contains('on')) { if (!addons.includes(label)) addons.push(label); }
+  else addons = addons.filter(a => a !== label);
+}
+
+// ─────────────────────────────────────────────
+// TIME SLOT
+// ─────────────────────────────────────────────
+function pickTime(el) {
+  if (el.classList.contains('off')) return;
+  document.querySelectorAll('.slot').forEach(s => s.classList.remove('on'));
+  el.classList.add('on');
+  selTime = el.textContent;
+  document.getElementById('btime').value = selTime;
+}
+
+// ─────────────────────────────────────────────
+// NAVIGATION
+// ─────────────────────────────────────────────
+function goTo(n) {
+  if (n === 4 && !validateStep3()) return;
+  document.getElementById('s' + curStep).classList.remove('active');
+  curStep = n;
+  document.getElementById('s' + curStep).classList.add('active');
+  updateProg();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  if (n === 2) showSvcForm();
+  if (n === 4) buildReview();
+}
+
+function updateProg() {
+  for (let i = 1; i <= 4; i++) {
+    const dot  = document.getElementById('pd' + i);
+    const step = document.getElementById('ps' + i);
+    dot.classList.remove('active', 'done');
+    step.classList.remove('active');
+    if (i < curStep) { dot.classList.add('done'); dot.textContent = '✓'; }
+    else if (i === curStep) { dot.classList.add('active'); dot.textContent = i; step.classList.add('active'); }
+    else dot.textContent = i;
+    if (i < 4) document.getElementById('pl' + i).classList.toggle('done', i < curStep);
+  }
+}
+
+function showSvcForm() {
+  hidePrice();
+  ['detail', 'trash', 'pressure', 'window'].forEach(id =>
+    document.getElementById('f-' + id).style.display = 'none');
+  if (selSvc) document.getElementById('f-' + selSvc).style.display = 'block';
+
+  const eyes  = { detail: 'Car Detailing', trash: 'Trash Can Cleaning', pressure: 'Pressure Washing', window: 'Window Cleaning' };
+  const heads = { detail: 'Vehicle &amp; package info', trash: 'Tell us about your bins', pressure: 'Driveway details', window: 'Window details' };
+  document.getElementById('s2eye').textContent  = eyes[selSvc]  || 'Details';
+  document.getElementById('s2head').innerHTML   = heads[selSvc] || 'Service details';
+}
+
+// ─────────────────────────────────────────────
+// VALIDATION — Step 3
+// ─────────────────────────────────────────────
+function validateStep3() {
+  let ok = true;
+  const checks = [
+    { id: 'fname', f: 'ef-fn',   test: v => v.trim() },
+    { id: 'lname', f: 'ef-ln',   test: v => v.trim() },
+    { id: 'email', f: 'ef-em',   test: v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) },
+    { id: 'phone', f: 'ef-ph',   test: v => v.replace(/\D/g,'').length === 10 },
+    { id: 'addr',  f: 'ef-addr', test: v => v.trim() },
+    { id: 'city',  f: 'ef-city', test: v => v.trim() },
+    { id: 'zip',   f: 'ef-zip',  test: v => /^\d{5}$/.test(v.trim()) },
+    { id: 'bdate', f: 'ef-date', test: v => !!v },
+  ];
+  checks.forEach(({ id, f, test }) => {
+    const el = document.getElementById(id);
+    const fi = document.getElementById(f);
+    if (!fi || !el) return;
+    if (!test(el.value)) { fi.classList.add('err'); ok = false; }
+    else fi.classList.remove('err');
+  });
+  if (!ok) window.scrollTo({ top: 0, behavior: 'smooth' });
+  return ok;
+}
+
+// ─────────────────────────────────────────────
+// REVIEW BUILD
+// ─────────────────────────────────────────────
+function svcDetails() {
+  if (selSvc === 'detail') return {
+    package:   document.getElementById('carPkg').value   || '',
+    vehicle:   [document.getElementById('carYear').value, document.getElementById('carMake').value, document.getElementById('carModel').value].filter(Boolean).join(' '),
+    type:      document.getElementById('carType').value  || '',
+    color:     document.getElementById('carColor').value || '',
+    condition: document.getElementById('carCond').value  || '',
+    notes:     document.getElementById('detailNotes').value || '',
+  };
+  if (selSvc === 'trash') return {
+    count:     document.getElementById('trashCount').value || '',
+    binTypes:  document.getElementById('trashType').value  || '',
+    size:      document.getElementById('trashSize').value  || '',
+    frequency: document.getElementById('trashFreq').value  || '',
+    notes:     document.getElementById('trashNotes').value || '',
+  };
+  if (selSvc === 'pressure') return {
+    surface:   document.getElementById('driveType').value   || '',
+    area:      document.getElementById('driveSqft').value   || '',
+    staining:  document.getElementById('driveStain').value  || '',
+    notes:     document.getElementById('pressureNotes').value || '',
+  };
+  if (selSvc === 'window') return {
+    count:     document.getElementById('winCount').value   || '',
+    stories:   document.getElementById('winStories').value || '',
+    scope:     document.getElementById('winScope').value   || '',
+    notes:     document.getElementById('windowNotes').value || '',
+  };
+  return {};
+}
+
+function reviewRows() {
+  const d = svcDetails();
+  const dateVal = document.getElementById('bdate').value;
+  const dateStr = dateVal
+    ? new Date(dateVal + 'T12:00').toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
+    : '—';
+
+  const rows = [
+    { k: 'Service', v: SVC_LABELS[selSvc] || '—' },
+    selSvc === 'detail' && d.package   ? { k: 'Package',   v: d.package }   : null,
+    selSvc === 'detail' && d.vehicle   ? { k: 'Vehicle',   v: d.vehicle }   : null,
+    selSvc === 'detail' && d.type      ? { k: 'Type',      v: d.type }      : null,
+    selSvc === 'trash'  && d.count     ? { k: 'Bins',      v: d.count }     : null,
+    selSvc === 'trash'  && d.frequency ? { k: 'Frequency', v: d.frequency } : null,
+    selSvc === 'pressure' && d.surface ? { k: 'Surface',   v: d.surface }   : null,
+    selSvc === 'pressure' && d.area    ? { k: 'Area',      v: d.area }      : null,
+    selSvc === 'window' && d.scope     ? { k: 'Scope',     v: d.scope }     : null,
+    selSvc === 'window' && d.count     ? { k: 'Windows',   v: d.count }     : null,
+    addons.length ? { k: 'Add-ons', v: addons.join(', ') } : null,
+    { k: 'Name',    v: (document.getElementById('fname').value + ' ' + document.getElementById('lname').value).trim() },
+    { k: 'Email',   v: document.getElementById('email').value },
+    { k: 'Phone',   v: document.getElementById('phone').value },
+    { k: 'Address', v: [document.getElementById('addr').value, document.getElementById('city').value, document.getElementById('state').value, document.getElementById('zip').value].filter(Boolean).join(', ') },
+    { k: 'Date',    v: dateStr },
+    { k: 'Time',    v: selTime || '—' },
+    document.getElementById('referral').value ? { k: 'Referral', v: document.getElementById('referral').value } : null,
+  ].filter(Boolean);
+
+  return rows;
+}
+
+function buildReview() {
+  document.getElementById('reviewRows').innerHTML = reviewRows().map(r =>
+    `<div class="review-row"><span class="rk">${r.k}</span><span class="rv">${r.v}</span></div>`
+  ).join('');
+}
+
+// ─────────────────────────────────────────────
+// SUBMIT → SUPABASE
+// ─────────────────────────────────────────────
+async function submitBooking() {
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>Submitting…';
+
+  const details = svcDetails();
+  const dateVal = document.getElementById('bdate').value;
+  const dateStr = dateVal
+    ? new Date(dateVal + 'T12:00').toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
+    : '';
+
+  const payload = {
+    service:  selSvc,
+    details:  details,
+    name:     (document.getElementById('fname').value + ' ' + document.getElementById('lname').value).trim(),
+    email:    document.getElementById('email').value.trim(),
+    phone:    document.getElementById('phone').value.trim(),
+    address:  [document.getElementById('addr').value, document.getElementById('city').value, document.getElementById('state').value, document.getElementById('zip').value].filter(Boolean).join(', '),
+    date:     dateStr,
+    time:     selTime || '',
+    addons:   addons,
+    referral: document.getElementById('referral').value || '',
+    gate_code: document.getElementById('gate').value || '',
+    price_estimate: document.getElementById('priceRange').textContent || '',
+  };
+
+  try {
+    // 1. Save booking to Supabase
+    const { data, error } = await supabase
+      .from('bookings')
+      .insert([payload])
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    // 2. Trigger SMS notification via Edge Function
+    // This runs server-side so your Twilio secret key is never exposed
+    try {
+      await supabase.functions.invoke('notify-booking', {
+        body: { booking: payload, booking_id: data.id }
+      });
+    } catch (smsErr) {
+      // SMS failure shouldn't block the booking confirmation
+      console.warn('SMS notification failed (non-critical):', smsErr);
+    }
+
+    // 3. Show success
+    const bookingId = 'KSE-' + data.id.slice(0, 8).toUpperCase();
+    document.getElementById('bid').textContent = bookingId;
+    document.getElementById('successPhone').textContent = payload.phone;
+    document.getElementById('successRows').innerHTML = document.getElementById('reviewRows').innerHTML;
+
+    document.getElementById('s4').classList.remove('active');
+    curStep = 5;
+    document.getElementById('s5').classList.add('active');
+
+    for (let i = 1; i <= 4; i++) {
+      const d = document.getElementById('pd' + i);
+      d.classList.remove('active'); d.classList.add('done'); d.textContent = '✓';
+      if (i < 4) document.getElementById('pl' + i).classList.add('done');
+    }
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  } catch (err) {
+    console.error('Booking submission error:', err);
+    showToast('Something went wrong. Please try again or call us at (770) 555-0100.');
+    btn.disabled = false;
+    btn.innerHTML = 'Confirm Booking ✓';
+  }
+}
+
+// ─────────────────────────────────────────────
+// TOAST
+// ─────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 5000);
+}
+</script>
+</body>
+</html>
