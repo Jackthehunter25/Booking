@@ -79,7 +79,7 @@ Deno.serve(async (req: Request) => {
     </div>
     <div style="padding:28px 32px 8px">
       <p style="margin:0 0 6px;font-size:18px;font-weight:700;color:#111827">Thanks, ${booking.name.split(' ')[0]}!</p>
-      <p style="margin:0 0 24px;font-size:15px;color:#6b7280;line-height:1.6">We've received your booking request and will reach out to <strong>${booking.phone}</strong> within 15 minutes to confirm your appointment.</p>
+      <p style="margin:0 0 24px;font-size:15px;color:#6b7280;line-height:1.6">We've received your booking request and will reach out to <strong>${booking.phone}</strong> within 30 minutes to confirm your appointment.</p>
       <table style="width:100%;border-collapse:collapse;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden">
         ${detailRows}
       </table>
