@@ -24,7 +24,7 @@ Deno.serve(async (req: Request) => {
     const OWNER_EMAIL    = Deno.env.get('OWNER_EMAIL') || 'jackson.thehuffmans@gmail.com';
 
     const service   = SVC_LABEL[booking.service as string] || booking.service;
-    const pkg       = booking.details?.package ? ` — ${booking.details.package}` : '';
+    const pkg       = booking.details?.detail?.package ? ` — ${booking.details.detail.package}` : '';
     const bookingId = `KSE-${(booking_id as string)?.slice(0, 8).toUpperCase()}`;
 
     const rawRows: ([string, string] | null)[] = [

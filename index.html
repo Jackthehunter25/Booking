@@ -255,6 +255,19 @@ textarea { resize: vertical; min-height: 80px; }
 .lp-rev-text { font-size: 14px; color: var(--ink2); line-height: 1.7; margin-bottom: 16px; }
 .lp-rev-author { font-size: 12px; font-weight: 600; color: var(--muted); }
 
+/* ─── ABOUT ─── */
+.lp-about { background: var(--green); padding: 72px 40px; }
+.lp-about-inner { max-width: 860px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center; }
+.lp-about-tag { font-size: 11px; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase; color: rgba(255,255,255,.55); margin-bottom: 14px; }
+.lp-about-h { font-family: 'Fraunces', serif; font-size: 36px; font-weight: 800; color: #fff; line-height: 1.1; letter-spacing: -.3px; margin-bottom: 20px; }
+.lp-about-body { font-size: 15px; color: rgba(255,255,255,.8); line-height: 1.75; }
+.lp-about-body p { margin-bottom: 16px; }
+.lp-about-body p:last-child { margin-bottom: 0; }
+.lp-about-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.lp-stat { background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.15); border-radius: 12px; padding: 24px 20px; }
+.lp-stat-num { font-family: 'Fraunces', serif; font-size: 40px; font-weight: 900; color: #fff; line-height: 1; margin-bottom: 6px; }
+.lp-stat-label { font-size: 13px; color: rgba(255,255,255,.65); font-weight: 500; line-height: 1.4; }
+
 /* ─── RESPONSIVE ─── */
 @media (max-width: 760px) {
   .lp-hero { padding: 40px 20px; }
@@ -266,6 +279,9 @@ textarea { resize: vertical; min-height: 80px; }
   .lp-why-icon { flex-shrink: 0; margin-bottom: 0; }
   .lp-reviews { padding: 44px 20px; }
   .lp-rev-grid { grid-template-columns: 1fr; }
+  .lp-about { padding: 52px 20px; }
+  .lp-about-inner { grid-template-columns: 1fr; gap: 40px; }
+  .lp-about-h { font-size: 28px; }
 }
 @media (max-width: 560px) {
   nav { padding: 0 20px; }
@@ -375,6 +391,38 @@ textarea { resize: vertical; min-height: 80px; }
       <div class="lp-stars">★★★★★</div>
       <p class="lp-rev-text">"So convenient — booked trash can cleaning in 2 minutes. They came the next morning and did a great job. My bins actually smell clean now."</p>
       <div class="lp-rev-author">— Jennifer K., Kennesaw</div>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section class="lp-about">
+  <div class="lp-about-inner">
+    <div>
+      <div class="lp-about-tag">About Us</div>
+      <h2 class="lp-about-h">Built by students.<br>Run like pros.</h2>
+      <div class="lp-about-body">
+        <p>Kennesaw Standard Exterior Co. was founded by college students who wanted to build something real. What started as a way to earn while in school turned into a full-service exterior cleaning company built on one simple idea — do the job right, every single time.</p>
+        <p>We're not a franchise. We're local, we're hungry, and we take pride in every job we show up to. From car details to pressure washing, we treat your property like it's our own.</p>
+      </div>
+    </div>
+    <div class="lp-about-stats">
+      <div class="lp-stat">
+        <div class="lp-stat-num">100%</div>
+        <div class="lp-stat-label">Satisfaction guaranteed on every job</div>
+      </div>
+      <div class="lp-stat">
+        <div class="lp-stat-num">4</div>
+        <div class="lp-stat-label">Services, one booking, one team</div>
+      </div>
+      <div class="lp-stat">
+        <div class="lp-stat-num">30m</div>
+        <div class="lp-stat-label">Response time during business hours</div>
+      </div>
+      <div class="lp-stat">
+        <div class="lp-stat-num">Local</div>
+        <div class="lp-stat-label">Kennesaw born, neighbor focused</div>
+      </div>
     </div>
   </div>
 </section>
@@ -922,13 +970,23 @@ function pickTime(el) {
 function goTo(n) {
   if (n === 3 && curStep === 2 && !validateStep2()) return;
   if (n === 4 && !validateStep3()) return;
-  document.getElementById('s' + curStep).classList.remove('active');
+  const prev = curStep;
+  document.getElementById('s' + prev).classList.remove('active');
   curStep = n;
   document.getElementById('s' + curStep).classList.add('active');
   updateProg();
   document.getElementById('book').scrollIntoView({ behavior: 'smooth' });
-  if (n === 2) showSvcForm();
+  if (n === 1) syncBtn1();
+  if (n === 2) showSvcForm(prev === 1);
   if (n === 4) buildReview();
+}
+
+function syncBtn1() {
+  const btn = document.getElementById('btn1');
+  btn.disabled = selSvcs.length === 0;
+  btn.innerHTML = selSvcs.length > 1
+    ? `Continue with ${selSvcs.length} services &rarr;`
+    : 'Continue &rarr;';
 }
 
 function updateProg() {
@@ -944,10 +1002,12 @@ function updateProg() {
   }
 }
 
-function showSvcForm() {
-  addons = [];
-  document.querySelectorAll('[onclick*="addOn"]').forEach(c => c.classList.remove('on'));
-  hidePrice();
+function showSvcForm(reset = false) {
+  if (reset) {
+    addons = [];
+    document.querySelectorAll('[onclick*="addOn"]').forEach(c => c.classList.remove('on'));
+    hidePrice();
+  }
   const multi = selSvcs.length > 1;
   ['detail', 'trash', 'pressure', 'window'].forEach(id => {
     const visible = selSvcs.includes(id);
