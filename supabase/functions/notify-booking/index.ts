@@ -73,9 +73,9 @@ Deno.serve(async (req: Request) => {
 <html>
 <body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f3f4f6">
   <div style="max-width:560px;margin:32px auto;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.1)">
-    <div style="background:#1a3d2b;padding:24px 32px">
-      <p style="margin:0;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#6ee7b7">Booking Received</p>
-      <h1 style="margin:4px 0 0;font-size:22px;color:#fff">Kennesaw Standard</h1>
+    <div style="background:#1a3d2b;padding:20px 32px;text-align:center">
+      <img src="https://kennesaw-standard.com/photos/logo.png" alt="Kennesaw Standard Exterior Co." style="height:64px;width:auto;background:#fff;border-radius:10px;padding:8px 16px;display:inline-block">
+      <p style="margin:10px 0 0;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#6ee7b7">Booking Received</p>
     </div>
     <div style="padding:28px 32px 8px">
       <p style="margin:0 0 6px;font-size:18px;font-weight:700;color:#111827">Thanks, ${booking.name.split(' ')[0]}!</p>
@@ -103,9 +103,9 @@ Deno.serve(async (req: Request) => {
 <html>
 <body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f3f4f6">
   <div style="max-width:560px;margin:32px auto;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.1)">
-    <div style="background:#1a3d2b;padding:24px 32px">
-      <p style="margin:0;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#6ee7b7">New Booking</p>
-      <h1 style="margin:4px 0 0;font-size:22px;color:#fff">Kennesaw Standard</h1>
+    <div style="background:#1a3d2b;padding:20px 32px;text-align:center">
+      <img src="https://kennesaw-standard.com/photos/logo.png" alt="Kennesaw Standard Exterior Co." style="height:64px;width:auto;background:#fff;border-radius:10px;padding:8px 16px;display:inline-block">
+      <p style="margin:10px 0 0;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#6ee7b7">New Booking</p>
     </div>
     <div style="padding:24px 32px 8px">
       <p style="margin:0 0 16px;font-size:15px;color:#374151">You have a new booking request. Log in to the <a href="https://kennesaw-standard.com/admin" style="color:#1a3d2b;font-weight:600">admin dashboard</a> to confirm.</p>

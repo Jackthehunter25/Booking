@@ -16,6 +16,7 @@
 <meta property="og:title"       content="Kennesaw Standard Exterior Co. — Book Online">
 <meta property="og:description" content="Car detailing, trash can cleaning, pressure washing, and window cleaning. Book in 2 minutes. We respond within 30 min.">
 <meta property="og:site_name"   content="Kennesaw Standard Exterior Co.">
+<meta property="og:image"       content="https://kennesaw-standard.com/photos/logo.png">
 
 <!-- Twitter/X card -->
 <meta name="twitter:card"        content="summary">
@@ -71,9 +72,20 @@ nav {
   padding: 0 40px; height: 64px;
   position: sticky; top: 0; z-index: 100;
 }
-.logo { font-family: 'Fraunces', serif; font-size: 17px; font-weight: 700; color: var(--ink); letter-spacing: -.3px; line-height: 1.15; }
-.logo small { display: block; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 10px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); }
+.nav-logo { height: 48px; width: auto; display: block; }
 .nav-phone { font-size: 13px; font-weight: 600; color: var(--green); text-decoration: none; display: flex; align-items: center; gap: 6px; }
+
+/* ─── FOOTER ─── */
+.site-footer { background: #0f2419; padding: 52px 40px 36px; text-align: center; }
+.site-footer .footer-inner { max-width: 640px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; }
+.footer-logo-card { background: #fff; border-radius: 14px; padding: 12px 28px; margin-bottom: 24px; }
+.footer-logo-card img { height: 60px; width: auto; display: block; }
+.footer-tagline { font-size: 14px; color: rgba(255,255,255,.55); margin-bottom: 20px; }
+.footer-links { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+.footer-links a { font-size: 13px; color: #6ee7b7; text-decoration: none; font-weight: 600; }
+.footer-links a:hover { text-decoration: underline; }
+.footer-sep { color: rgba(255,255,255,.2); font-size: 13px; }
+.footer-copy { font-size: 11px; color: rgba(255,255,255,.25); letter-spacing: .5px; }
 
 /* ─── TRUST BAR ─── */
 .trust-bar {
@@ -300,10 +312,9 @@ textarea { resize: vertical; min-height: 80px; }
 
 <!-- NAV -->
 <nav>
-  <div class="logo">
-    Kennesaw Standard Exterior Co.
-    <small>Professional Exterior Services</small>
-  </div>
+  <a href="/">
+    <img src="photos/logo.png" alt="Kennesaw Standard Exterior Co." class="nav-logo">
+  </a>
   <a class="nav-phone" href="tel:+14049135941">
     <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
       <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.09 9.82 19.79 19.79 0 01.06 1.18 2 2 0 012 0h3a2 2 0 012 1.72c.127.96.36 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.34 1.85.573 2.81.7A2 2 0 0122 14.92z"/>
@@ -1275,5 +1286,21 @@ function showToast(msg) {
   setTimeout(() => t.classList.remove('show'), 5000);
 }
 </script>
+
+<!-- FOOTER -->
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-logo-card">
+      <img src="photos/logo.png" alt="Kennesaw Standard Exterior Co.">
+    </div>
+    <p class="footer-tagline">Professional exterior services in Kennesaw, GA &amp; surrounding areas</p>
+    <div class="footer-links">
+      <a href="tel:+14049135941">(404) 913-5941</a>
+      <span class="footer-sep">·</span>
+      <a href="mailto:KennesawStandardExterior@gmail.com">KennesawStandardExterior@gmail.com</a>
+    </div>
+    <p class="footer-copy">&copy; 2025 Kennesaw Standard Exterior Co. All rights reserved.</p>
+  </div>
+</footer>
 </body>
 </html>
