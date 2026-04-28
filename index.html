@@ -325,7 +325,7 @@ textarea { resize: vertical; min-height: 80px; }
         <div class="row">
           <div class="field">
             <label>Vehicle Type <span class="req">*</span></label>
-            <select id="carType">
+            <select id="carType" onchange="updateDetailPrice()">
               <option value="">Select…</option>
               <option>Sedan / Coupe</option><option>SUV / Crossover</option>
               <option>Pickup Truck</option><option>Minivan</option>
@@ -349,19 +349,19 @@ textarea { resize: vertical; min-height: 80px; }
       <div class="card">
         <div class="card-title">Package</div>
         <div class="pkg-grid">
-          <div class="pkg" onclick="pickPkg(this,'Exterior Only','$80–$120')">
+          <div class="pkg" onclick="pickPkg(this,'Exterior Only')">
             <div class="pkg-name">Exterior</div>
-            <div class="pkg-price">From $80</div>
+            <div class="pkg-price">From $85</div>
             <div class="pkg-feat">Hand wash · Clay bar · Wax · Tire shine · Windows</div>
           </div>
-          <div class="pkg" onclick="pickPkg(this,'Interior Only','$100–$140')">
+          <div class="pkg" onclick="pickPkg(this,'Interior Only')">
             <div class="pkg-name">Interior</div>
             <div class="pkg-price">From $100</div>
             <div class="pkg-feat">Vacuum · Shampoo · Wipe-down · Leather condition</div>
           </div>
-          <div class="pkg" onclick="pickPkg(this,'Full Detail','$160–$220')">
+          <div class="pkg" onclick="pickPkg(this,'Full Detail')">
             <div class="pkg-name">Full Detail</div>
-            <div class="pkg-price">From $160</div>
+            <div class="pkg-price">From $165</div>
             <div class="pkg-feat">Complete interior + exterior — most popular</div>
           </div>
         </div>
@@ -420,10 +420,10 @@ textarea { resize: vertical; min-height: 80px; }
       <div class="card">
         <div class="card-title">Frequency</div>
         <div class="chips">
-          <div class="chip" onclick="solo(this,'trashFreq')">One-Time</div>
-          <div class="chip" onclick="solo(this,'trashFreq')">Monthly</div>
-          <div class="chip" onclick="solo(this,'trashFreq')">Bi-Weekly</div>
-          <div class="chip" onclick="solo(this,'trashFreq')">Weekly</div>
+          <div class="chip" onclick="solo(this,'trashFreq');updateTrashPrice()">One-Time</div>
+          <div class="chip" onclick="solo(this,'trashFreq');updateTrashPrice()">Quarterly</div>
+          <div class="chip" onclick="solo(this,'trashFreq');updateTrashPrice()">Monthly</div>
+          <div class="chip" onclick="solo(this,'trashFreq');updateTrashPrice()">Bi-Weekly</div>
         </div>
         <input type="hidden" id="trashFreq">
       </div>
@@ -517,13 +517,11 @@ textarea { resize: vertical; min-height: 80px; }
           </div>
         </div>
         <div class="field">
-          <label>Scope <span class="req">*</span></label>
+          <label>Scope</label>
           <div class="chips">
-            <div class="chip" onclick="solo(this,'winScope')">Interior Only</div>
-            <div class="chip" onclick="solo(this,'winScope')">Exterior Only</div>
-            <div class="chip" onclick="solo(this,'winScope')">Interior + Exterior</div>
+            <div class="chip on">Exterior Only</div>
           </div>
-          <input type="hidden" id="winScope">
+          <input type="hidden" id="winScope" value="Exterior Only">
         </div>
       </div>
       <div class="card">
@@ -706,19 +704,43 @@ function showPrice(range, note) {
 }
 function hidePrice() { document.getElementById('priceBadge').classList.remove('show'); }
 
-// Car detail — triggered by package selection
-function pickPkg(el, name, priceRange) {
+// Car detail — triggered by package or vehicle type selection
+function pickPkg(el, name) {
   document.querySelectorAll('.pkg').forEach(p => p.classList.remove('on'));
   el.classList.add('on');
   document.getElementById('carPkg').value = name;
-  showPrice(priceRange);
+  updateDetailPrice();
 }
 
-// Trash — triggered by bin count dropdown
+function updateDetailPrice() {
+  const pkg  = document.getElementById('carPkg').value;
+  const type = document.getElementById('carType').value;
+  if (!pkg || !type) { hidePrice(); return; }
+  const matrix = {
+    'Exterior Only': { 'Sedan / Coupe': 85,  'SUV / Crossover': 100, 'Pickup Truck': 110, 'Minivan': 105 },
+    'Interior Only': { 'Sedan / Coupe': 100, 'SUV / Crossover': 120, 'Pickup Truck': 120, 'Minivan': 115 },
+    'Full Detail':   { 'Sedan / Coupe': 165, 'SUV / Crossover': 195, 'Pickup Truck': 200, 'Minivan': 190 },
+  };
+  const price = matrix[pkg]?.[type];
+  if (price) showPrice('$' + price, 'flat rate — final quote confirmed before service');
+  else showPrice('Custom quote', 'call us for pricing on this vehicle type');
+}
+
+// Trash — triggered by bin count or frequency selection
 function updateTrashPrice() {
-  const prices = { '1':'$25–$35', '2':'$40–$55', '3':'$55–$70', '4+':'$70–$90+' };
-  const val = document.getElementById('trashCount').value;
-  if (val) showPrice(prices[val] || '—');
+  const countVal = document.getElementById('trashCount').value;
+  const freqVal  = document.getElementById('trashFreq').value;
+  if (!countVal || !freqVal) { hidePrice(); return; }
+  const rates = { 'One-Time': 20, 'Quarterly': 15, 'Monthly': 12, 'Bi-Weekly': 10 };
+  const rate  = rates[freqVal];
+  if (!rate) return;
+  const count    = countVal === '4+' ? 4 : parseInt(countVal);
+  const total    = rate * count;
+  const plus     = countVal === '4+' ? '+' : '';
+  const note     = freqVal === 'One-Time'
+    ? 'one-time service'
+    : freqVal.toLowerCase() + ' service — $' + rate + ' per bin per visit';
+  showPrice('$' + total + plus, note);
 }
 
 // Pressure washing — triggered by area dropdown
@@ -730,9 +752,9 @@ function updatePressurePrice() {
 
 // Window cleaning — triggered by count dropdown
 function updateWindowPrice() {
-  const prices = { '1-5':'$60–$90', '6-10':'$90–$140', '11-20':'$140–$210', '20+':'$210–$300+' };
+  const prices = { '1-5':'$45–$75', '6-10':'$80–$110', '11-20':'$115–$175', '20+':'$200+' };
   const val = document.getElementById('winCount').value;
-  if (val) showPrice(prices[val] || '—');
+  if (val) showPrice(prices[val] || '—', 'exterior only — $9 per window, $125 minimum');
 }
 
 // ─────────────────────────────────────────────
