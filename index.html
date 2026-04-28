@@ -198,6 +198,11 @@ textarea { resize: vertical; min-height: 80px; }
 .review-row:last-child { border-bottom: none; }
 .rk { color: var(--muted); font-size: 13px; flex-shrink: 0; }
 .rv { font-weight: 600; text-align: right; }
+.review-header { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--green); padding: 16px 0 4px; }
+.review-header:first-child { padding-top: 2px; }
+
+/* ─── SERVICE SECTION LABELS ─── */
+.svc-section-label { display: none; font-family: 'Fraunces', serif; font-size: 17px; font-weight: 700; color: var(--ink); margin: 20px 0 14px; padding: 14px 18px; background: var(--green-l); border: 1.5px solid var(--green-m); border-radius: 10px; }
 
 /* ─── SUCCESS ─── */
 .success-wrap { text-align: center; padding: 12px 0 20px; }
@@ -445,6 +450,7 @@ textarea { resize: vertical; min-height: 80px; }
 
     <!-- ── CAR DETAIL ── -->
     <div id="f-detail" style="display:none">
+      <div class="svc-section-label" id="fh-detail">🚗 Car Detailing</div>
       <div class="card">
         <div class="card-title">Vehicle Information</div>
         <div class="row3">
@@ -506,6 +512,7 @@ textarea { resize: vertical; min-height: 80px; }
 
     <!-- ── TRASH ── -->
     <div id="f-trash" style="display:none">
+      <div class="svc-section-label" id="fh-trash">🗑️ Trash Can Cleaning</div>
       <div class="card">
         <div class="card-title">Bin Details</div>
         <div class="row">
@@ -554,6 +561,7 @@ textarea { resize: vertical; min-height: 80px; }
 
     <!-- ── PRESSURE ── -->
     <div id="f-pressure" style="display:none">
+      <div class="svc-section-label" id="fh-pressure">💧 Pressure Washing</div>
       <div class="card">
         <div class="card-title">Driveway Details</div>
         <div class="row">
@@ -606,6 +614,7 @@ textarea { resize: vertical; min-height: 80px; }
 
     <!-- ── WINDOW ── -->
     <div id="f-window" style="display:none">
+      <div class="svc-section-label" id="fh-window">🪟 Window Cleaning</div>
       <div class="card">
         <div class="card-title">Window Details</div>
         <div class="row">
@@ -767,10 +776,10 @@ try {
 // ─────────────────────────────────────────────
 // STATE
 // ─────────────────────────────────────────────
-let curStep = 1;
-let selSvc  = null;
-let selTime = null;
-let addons  = [];
+let curStep  = 1;
+let selSvcs  = [];
+let selTime  = null;
+let addons   = [];
 
 // Min date = tomorrow
 const td = new Date(); td.setDate(td.getDate() + 1);
@@ -865,10 +874,19 @@ function updateWindowPrice() {
 // SERVICE SELECTION
 // ─────────────────────────────────────────────
 function pickSvc(el) {
-  document.querySelectorAll('.svc').forEach(s => s.classList.remove('sel'));
-  el.classList.add('sel');
-  selSvc = el.dataset.svc;
-  document.getElementById('btn1').disabled = false;
+  const svc = el.dataset.svc;
+  if (selSvcs.includes(svc)) {
+    selSvcs = selSvcs.filter(s => s !== svc);
+    el.classList.remove('sel');
+  } else {
+    selSvcs.push(svc);
+    el.classList.add('sel');
+  }
+  const btn = document.getElementById('btn1');
+  btn.disabled = selSvcs.length === 0;
+  btn.innerHTML = selSvcs.length > 1
+    ? `Continue with ${selSvcs.length} services &rarr;`
+    : 'Continue &rarr;';
 }
 
 // ─────────────────────────────────────────────
@@ -930,40 +948,50 @@ function showSvcForm() {
   addons = [];
   document.querySelectorAll('[onclick*="addOn"]').forEach(c => c.classList.remove('on'));
   hidePrice();
-  ['detail', 'trash', 'pressure', 'window'].forEach(id =>
-    document.getElementById('f-' + id).style.display = 'none');
-  if (selSvc) document.getElementById('f-' + selSvc).style.display = 'block';
-
-  const eyes  = { detail: 'Car Detailing', trash: 'Trash Can Cleaning', pressure: 'Pressure Washing', window: 'Window Cleaning' };
-  const heads = { detail: 'Vehicle &amp; package info', trash: 'Tell us about your bins', pressure: 'Driveway details', window: 'Window details' };
-  document.getElementById('s2eye').textContent  = eyes[selSvc]  || 'Details';
-  document.getElementById('s2head').innerHTML   = heads[selSvc] || 'Service details';
+  const multi = selSvcs.length > 1;
+  ['detail', 'trash', 'pressure', 'window'].forEach(id => {
+    const visible = selSvcs.includes(id);
+    document.getElementById('f-' + id).style.display  = visible ? 'block' : 'none';
+    document.getElementById('fh-' + id).style.display = visible && multi ? 'block' : 'none';
+  });
+  if (multi) {
+    document.getElementById('s2eye').textContent = 'Multiple Services';
+    document.getElementById('s2head').innerHTML  = 'Fill in details for each service';
+  } else {
+    const svc   = selSvcs[0];
+    const eyes  = { detail: 'Car Detailing', trash: 'Trash Can Cleaning', pressure: 'Pressure Washing', window: 'Window Cleaning' };
+    const heads = { detail: 'Vehicle &amp; package info', trash: 'Tell us about your bins', pressure: 'Driveway details', window: 'Window details' };
+    document.getElementById('s2eye').textContent = eyes[svc]  || 'Details';
+    document.getElementById('s2head').innerHTML  = heads[svc] || 'Service details';
+  }
 }
 
 function validateStep2() {
-  if (selSvc === 'detail') {
-    const missing = !document.getElementById('carYear').value ||
-                    !document.getElementById('carMake').value.trim() ||
-                    !document.getElementById('carModel').value.trim() ||
-                    !document.getElementById('carType').value ||
-                    !document.getElementById('carPkg').value;
-    if (missing) { showToast('Please fill in your vehicle info and select a package.'); return false; }
-  }
-  if (selSvc === 'trash') {
-    const missing = !document.getElementById('trashCount').value ||
-                    !document.getElementById('trashType').value ||
-                    !document.getElementById('trashFreq').value;
-    if (missing) { showToast('Please select bin count, bin type, and cleaning frequency.'); return false; }
-  }
-  if (selSvc === 'pressure') {
-    const missing = !document.getElementById('driveType').value ||
-                    !document.getElementById('driveSqft').value;
-    if (missing) { showToast('Please select surface type and approximate area.'); return false; }
-  }
-  if (selSvc === 'window') {
-    const missing = !document.getElementById('winCount').value ||
-                    !document.getElementById('winStories').value;
-    if (missing) { showToast('Please select number of windows and home stories.'); return false; }
+  for (const svc of selSvcs) {
+    if (svc === 'detail') {
+      const missing = !document.getElementById('carYear').value ||
+                      !document.getElementById('carMake').value.trim() ||
+                      !document.getElementById('carModel').value.trim() ||
+                      !document.getElementById('carType').value ||
+                      !document.getElementById('carPkg').value;
+      if (missing) { showToast('Car Detailing: please fill in vehicle info and select a package.'); return false; }
+    }
+    if (svc === 'trash') {
+      const missing = !document.getElementById('trashCount').value ||
+                      !document.getElementById('trashType').value ||
+                      !document.getElementById('trashFreq').value;
+      if (missing) { showToast('Trash Can Cleaning: please select bin count, type, and frequency.'); return false; }
+    }
+    if (svc === 'pressure') {
+      const missing = !document.getElementById('driveType').value ||
+                      !document.getElementById('driveSqft').value;
+      if (missing) { showToast('Pressure Washing: please select surface type and area.'); return false; }
+    }
+    if (svc === 'window') {
+      const missing = !document.getElementById('winCount').value ||
+                      !document.getElementById('winStories').value;
+      if (missing) { showToast('Window Cleaning: please select number of windows and home stories.'); return false; }
+    }
   }
   return true;
 }
@@ -1002,7 +1030,8 @@ function validateStep3() {
 // REVIEW BUILD
 // ─────────────────────────────────────────────
 function svcDetails() {
-  if (selSvc === 'detail') return {
+  const result = {};
+  if (selSvcs.includes('detail')) result.detail = {
     package:   document.getElementById('carPkg').value   || '',
     vehicle:   [document.getElementById('carYear').value, document.getElementById('carMake').value, document.getElementById('carModel').value].filter(Boolean).join(' '),
     type:      document.getElementById('carType').value  || '',
@@ -1010,62 +1039,82 @@ function svcDetails() {
     condition: document.getElementById('carCond').value  || '',
     notes:     document.getElementById('detailNotes').value || '',
   };
-  if (selSvc === 'trash') return {
+  if (selSvcs.includes('trash')) result.trash = {
     count:     document.getElementById('trashCount').value || '',
     binTypes:  document.getElementById('trashType').value  || '',
     size:      document.getElementById('trashSize').value  || '',
     frequency: document.getElementById('trashFreq').value  || '',
     notes:     document.getElementById('trashNotes').value || '',
   };
-  if (selSvc === 'pressure') return {
-    surface:   document.getElementById('driveType').value   || '',
-    area:      document.getElementById('driveSqft').value   || '',
-    staining:  document.getElementById('driveStain').value  || '',
+  if (selSvcs.includes('pressure')) result.pressure = {
+    surface:   document.getElementById('driveType').value    || '',
+    area:      document.getElementById('driveSqft').value    || '',
+    staining:  document.getElementById('driveStain').value   || '',
+    extras:    [...addons],
     notes:     document.getElementById('pressureNotes').value || '',
   };
-  if (selSvc === 'window') return {
-    count:     document.getElementById('winCount').value   || '',
-    stories:   document.getElementById('winStories').value || '',
-    scope:     document.getElementById('winScope').value   || '',
-    notes:     document.getElementById('windowNotes').value || '',
+  if (selSvcs.includes('window')) result.window = {
+    count:   document.getElementById('winCount').value   || '',
+    stories: document.getElementById('winStories').value || '',
+    scope:   document.getElementById('winScope').value   || '',
+    notes:   document.getElementById('windowNotes').value || '',
   };
-  return {};
+  return result;
 }
 
 function reviewRows() {
-  const d = svcDetails();
+  const details = svcDetails();
   const dateVal = document.getElementById('bdate').value;
   const dateStr = dateVal
     ? new Date(dateVal + 'T12:00').toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
     : '—';
 
-  const rows = [
-    { k: 'Service', v: SVC_LABELS[selSvc] || '—' },
-    selSvc === 'detail' && d.package   ? { k: 'Package',   v: d.package }   : null,
-    selSvc === 'detail' && d.vehicle   ? { k: 'Vehicle',   v: d.vehicle }   : null,
-    selSvc === 'detail' && d.type      ? { k: 'Type',      v: d.type }      : null,
-    selSvc === 'trash'  && d.count     ? { k: 'Bins',      v: d.count }     : null,
-    selSvc === 'trash'  && d.frequency ? { k: 'Frequency', v: d.frequency } : null,
-    selSvc === 'pressure' && d.surface ? { k: 'Surface',   v: d.surface }   : null,
-    selSvc === 'pressure' && d.area    ? { k: 'Area',      v: d.area }      : null,
-    selSvc === 'window' && d.scope     ? { k: 'Scope',     v: d.scope }     : null,
-    selSvc === 'window' && d.count     ? { k: 'Windows',   v: d.count }     : null,
-    addons.length ? { k: 'Add-ons', v: addons.join(', ') } : null,
-    { k: 'Name',    v: (document.getElementById('fname').value + ' ' + document.getElementById('lname').value).trim() },
-    { k: 'Email',   v: document.getElementById('email').value },
-    { k: 'Phone',   v: document.getElementById('phone').value },
-    { k: 'Address', v: [document.getElementById('addr').value, document.getElementById('city').value, document.getElementById('state').value, document.getElementById('zip').value].filter(Boolean).join(', ') },
-    { k: 'Date',    v: dateStr },
-    { k: 'Time',    v: selTime || '—' },
-    document.getElementById('referral').value ? { k: 'Referral', v: document.getElementById('referral').value } : null,
-  ].filter(Boolean);
+  const rows = [];
+
+  selSvcs.forEach(svc => {
+    rows.push({ header: SVC_LABELS[svc] });
+    const d = details[svc] || {};
+    if (svc === 'detail') {
+      if (d.package)   rows.push({ k: 'Package',   v: d.package });
+      if (d.vehicle)   rows.push({ k: 'Vehicle',   v: d.vehicle });
+      if (d.type)      rows.push({ k: 'Type',      v: d.type });
+      if (d.condition) rows.push({ k: 'Condition', v: d.condition });
+    }
+    if (svc === 'trash') {
+      if (d.count)     rows.push({ k: 'Bins',      v: d.count });
+      if (d.binTypes)  rows.push({ k: 'Bin Types', v: d.binTypes });
+      if (d.frequency) rows.push({ k: 'Frequency', v: d.frequency });
+    }
+    if (svc === 'pressure') {
+      if (d.surface)              rows.push({ k: 'Surface',    v: d.surface });
+      if (d.area)                 rows.push({ k: 'Area',       v: d.area });
+      if (d.extras && d.extras.length) rows.push({ k: 'Also clean', v: d.extras.join(', ') });
+    }
+    if (svc === 'window') {
+      if (d.count)   rows.push({ k: 'Windows', v: d.count });
+      if (d.stories) rows.push({ k: 'Stories', v: d.stories });
+      if (d.scope)   rows.push({ k: 'Scope',   v: d.scope });
+    }
+  });
+
+  rows.push({ header: 'Your Information' });
+  rows.push({ k: 'Name',    v: (document.getElementById('fname').value + ' ' + document.getElementById('lname').value).trim() });
+  rows.push({ k: 'Email',   v: document.getElementById('email').value });
+  rows.push({ k: 'Phone',   v: document.getElementById('phone').value });
+  rows.push({ k: 'Address', v: [document.getElementById('addr').value, document.getElementById('city').value, document.getElementById('state').value, document.getElementById('zip').value].filter(Boolean).join(', ') });
+  rows.push({ k: 'Date',    v: dateStr });
+  rows.push({ k: 'Time',    v: selTime || '—' });
+  const ref = document.getElementById('referral').value;
+  if (ref) rows.push({ k: 'Referral', v: ref });
 
   return rows;
 }
 
 function buildReview() {
   document.getElementById('reviewRows').innerHTML = reviewRows().map(r =>
-    `<div class="review-row"><span class="rk">${r.k}</span><span class="rv">${r.v}</span></div>`
+    r.header
+      ? `<div class="review-header">${r.header}</div>`
+      : `<div class="review-row"><span class="rk">${r.k}</span><span class="rv">${r.v}</span></div>`
   ).join('');
 }
 
@@ -1091,9 +1140,10 @@ async function submitBooking() {
     ? new Date(dateVal + 'T12:00').toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
     : '';
 
+  const svcNames = { detail: 'Car Detailing', trash: 'Trash Can Cleaning', pressure: 'Pressure Washing', window: 'Window Cleaning' };
   const payload = {
     id:       bookingUuid,
-    service:  selSvc,
+    service:  selSvcs.map(s => svcNames[s]).join(' + '),
     details:  details,
     name:     (document.getElementById('fname').value + ' ' + document.getElementById('lname').value).trim(),
     email:    document.getElementById('email').value.trim(),
@@ -1104,8 +1154,8 @@ async function submitBooking() {
     addons:   addons,
     referral: document.getElementById('referral').value || '',
     gate_code: document.getElementById('gate').value || '',
-    notes:    details.notes || '',
-    price_estimate: document.getElementById('priceBadge').classList.contains('show')
+    notes:    selSvcs.map(s => details[s]?.notes).filter(Boolean).join(' | ') || '',
+    price_estimate: selSvcs.length === 1 && document.getElementById('priceBadge').classList.contains('show')
       ? document.getElementById('priceRange').textContent
       : '',
   };
