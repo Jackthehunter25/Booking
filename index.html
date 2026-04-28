@@ -657,9 +657,9 @@ textarea { resize: vertical; min-height: 80px; }
 // ─────────────────────────────────────────────
 // INIT SUPABASE
 // ─────────────────────────────────────────────
-let supabase;
+let supabaseClient;
 try {
-  supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+  supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 } catch (e) {
   console.error('Supabase failed to initialize:', e);
 }
@@ -916,7 +916,7 @@ async function submitBooking() {
   btn.disabled = true;
   btn.innerHTML = '<span class="spinner"></span>Submitting…';
 
-  if (!supabase) {
+  if (!supabaseClient) {
     showToast('Connection error. Please refresh the page and try again.');
     btn.disabled = false;
     btn.innerHTML = 'Confirm Booking ✓';
@@ -948,7 +948,7 @@ async function submitBooking() {
 
   try {
     // 1. Save booking to Supabase
-    const { error } = await supabase
+    const { error } = await supabaseClient
       .from('bookings')
       .insert([payload]);
 
@@ -957,7 +957,7 @@ async function submitBooking() {
     // 2. Trigger SMS notification via Edge Function
     // This runs server-side so your Twilio secret key is never exposed
     try {
-      await supabase.functions.invoke('notify-booking', {
+      await supabaseClient.functions.invoke('notify-booking', {
         body: { booking: payload, booking_id: bookingUuid }
       });
     } catch (smsErr) {
