@@ -665,7 +665,7 @@ textarea { resize: vertical; min-height: 80px; }
       </div>
       <div class="row">
         <div class="field" id="ef-em"><label>Email <span class="req">*</span></label><input id="email" type="email" placeholder="you@email.com"><div class="err-msg">Enter a valid email</div></div>
-        <div class="field" id="ef-ph"><label>Phone <span class="req">*</span></label><input id="phone" type="tel" placeholder="(404) 913-5941"><div class="err-msg">Required</div></div>
+        <div class="field" id="ef-ph"><label>Phone <span class="req">*</span></label><input id="phone" type="tel" placeholder="(555) 000-0000"><div class="err-msg">Required</div></div>
       </div>
     </div>
 
@@ -778,7 +778,9 @@ let addons  = [];
 
 // Min date = tomorrow
 const td = new Date(); td.setDate(td.getDate() + 1);
-document.getElementById('bdate').min = td.toISOString().split('T')[0];
+const MIN_DATE = td.toISOString().split('T')[0];
+document.getElementById('bdate').min = MIN_DATE;
+document.getElementById('carYear').max = new Date().getFullYear() + 1;
 
 const SVC_LABELS = {
   detail:   '🚗 Car Detailing',
@@ -904,6 +906,7 @@ function pickTime(el) {
 // NAVIGATION
 // ─────────────────────────────────────────────
 function goTo(n) {
+  if (n === 3 && curStep === 2 && !validateStep2()) return;
   if (n === 4 && !validateStep3()) return;
   document.getElementById('s' + curStep).classList.remove('active');
   curStep = n;
@@ -928,6 +931,8 @@ function updateProg() {
 }
 
 function showSvcForm() {
+  addons = [];
+  document.querySelectorAll('[onclick*="addOn"]').forEach(c => c.classList.remove('on'));
   hidePrice();
   ['detail', 'trash', 'pressure', 'window'].forEach(id =>
     document.getElementById('f-' + id).style.display = 'none');
@@ -937,6 +942,34 @@ function showSvcForm() {
   const heads = { detail: 'Vehicle &amp; package info', trash: 'Tell us about your bins', pressure: 'Driveway details', window: 'Window details' };
   document.getElementById('s2eye').textContent  = eyes[selSvc]  || 'Details';
   document.getElementById('s2head').innerHTML   = heads[selSvc] || 'Service details';
+}
+
+function validateStep2() {
+  if (selSvc === 'detail') {
+    const missing = !document.getElementById('carYear').value ||
+                    !document.getElementById('carMake').value.trim() ||
+                    !document.getElementById('carModel').value.trim() ||
+                    !document.getElementById('carType').value ||
+                    !document.getElementById('carPkg').value;
+    if (missing) { showToast('Please fill in your vehicle info and select a package.'); return false; }
+  }
+  if (selSvc === 'trash') {
+    const missing = !document.getElementById('trashCount').value ||
+                    !document.getElementById('trashType').value ||
+                    !document.getElementById('trashFreq').value;
+    if (missing) { showToast('Please select bin count, bin type, and cleaning frequency.'); return false; }
+  }
+  if (selSvc === 'pressure') {
+    const missing = !document.getElementById('driveType').value ||
+                    !document.getElementById('driveSqft').value;
+    if (missing) { showToast('Please select surface type and approximate area.'); return false; }
+  }
+  if (selSvc === 'window') {
+    const missing = !document.getElementById('winCount').value ||
+                    !document.getElementById('winStories').value;
+    if (missing) { showToast('Please select number of windows and home stories.'); return false; }
+  }
+  return true;
 }
 
 // ─────────────────────────────────────────────
@@ -952,7 +985,7 @@ function validateStep3() {
     { id: 'addr',  f: 'ef-addr', test: v => v.trim() },
     { id: 'city',  f: 'ef-city', test: v => v.trim() },
     { id: 'zip',   f: 'ef-zip',  test: v => /^\d{5}$/.test(v.trim()) },
-    { id: 'bdate', f: 'ef-date', test: v => !!v },
+    { id: 'bdate', f: 'ef-date', test: v => !!v && v >= MIN_DATE },
   ];
   checks.forEach(({ id, f, test }) => {
     const el = document.getElementById(id);
@@ -961,6 +994,10 @@ function validateStep3() {
     if (!test(el.value)) { fi.classList.add('err'); ok = false; }
     else fi.classList.remove('err');
   });
+  if (!selTime) {
+    showToast('Please select a preferred arrival window.');
+    ok = false;
+  }
   if (!ok) document.getElementById('book').scrollIntoView({ behavior: 'smooth' });
   return ok;
 }
@@ -1071,7 +1108,10 @@ async function submitBooking() {
     addons:   addons,
     referral: document.getElementById('referral').value || '',
     gate_code: document.getElementById('gate').value || '',
-    price_estimate: document.getElementById('priceRange').textContent || '',
+    notes:    details.notes || '',
+    price_estimate: document.getElementById('priceBadge').classList.contains('show')
+      ? document.getElementById('priceRange').textContent
+      : '',
   };
 
   try {
