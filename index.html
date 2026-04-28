@@ -909,7 +909,7 @@ function goTo(n) {
   curStep = n;
   document.getElementById('s' + curStep).classList.add('active');
   updateProg();
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  document.getElementById('book').scrollIntoView({ behavior: 'smooth' });
   if (n === 2) showSvcForm();
   if (n === 4) buildReview();
 }
@@ -961,7 +961,7 @@ function validateStep3() {
     if (!test(el.value)) { fi.classList.add('err'); ok = false; }
     else fi.classList.remove('err');
   });
-  if (!ok) window.scrollTo({ top: 0, behavior: 'smooth' });
+  if (!ok) document.getElementById('book').scrollIntoView({ behavior: 'smooth' });
   return ok;
 }
 
@@ -1109,7 +1109,7 @@ async function submitBooking() {
       if (i < 4) document.getElementById('pl' + i).classList.add('done');
     }
 
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    document.getElementById('book').scrollIntoView({ behavior: 'smooth' });
 
   } catch (err) {
     console.error('Booking submission error:', err);
