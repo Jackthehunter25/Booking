@@ -28,6 +28,24 @@ Deno.serve(async (req: Request) => {
     const bookingId = `KSE-${(booking_id as string)?.slice(0, 8).toUpperCase()}`;
 
     const rawRows: ([string, string] | null)[] = [
+      ['Service',  `${service}${pkg}`],
+      ['Date',     booking.date],
+      ['Time',     booking.time],
+      ['Address',  booking.address],
+      booking.price_estimate ? ['Est. Price', booking.price_estimate] : null,
+    ];
+
+    const detailRows = rawRows
+      .filter((r): r is [string, string] => r !== null)
+      .map(([label, value]) => `
+        <tr>
+          <td style="padding:10px 16px;font-weight:600;color:#374151;background:#f9fafb;border-bottom:1px solid #e5e7eb;white-space:nowrap;font-size:13px">${label}</td>
+          <td style="padding:10px 16px;color:#111827;border-bottom:1px solid #e5e7eb;font-size:13px">${value}</td>
+        </tr>`)
+      .join('');
+
+    // ── Owner notification rows (includes all fields) ──
+    const ownerRawRows: ([string, string] | null)[] = [
       ['Service',    `${service}${pkg}`],
       ['Date',       booking.date],
       ['Time',       booking.time],
@@ -40,16 +58,47 @@ Deno.serve(async (req: Request) => {
       booking.notes          ? ['Notes',      booking.notes]          : null,
     ];
 
-    const detailRows = rawRows
+    const ownerDetailRows = ownerRawRows
       .filter((r): r is [string, string] => r !== null)
       .map(([label, value]) => `
         <tr>
-          <td style="padding:10px 16px;font-weight:600;color:#374151;background:#f9fafb;border-bottom:1px solid #e5e7eb;white-space:nowrap">${label}</td>
-          <td style="padding:10px 16px;color:#111827;border-bottom:1px solid #e5e7eb">${value}</td>
+          <td style="padding:10px 16px;font-weight:600;color:#374151;background:#f9fafb;border-bottom:1px solid #e5e7eb;white-space:nowrap;font-size:13px">${label}</td>
+          <td style="padding:10px 16px;color:#111827;border-bottom:1px solid #e5e7eb;font-size:13px">${value}</td>
         </tr>`)
       .join('');
 
-    const html = `
+    // ── Customer confirmation email ──
+    const customerHtml = `
+<!DOCTYPE html>
+<html>
+<body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f3f4f6">
+  <div style="max-width:560px;margin:32px auto;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.1)">
+    <div style="background:#1a3d2b;padding:24px 32px">
+      <p style="margin:0;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#6ee7b7">Booking Received</p>
+      <h1 style="margin:4px 0 0;font-size:22px;color:#fff">Kennesaw Standard</h1>
+    </div>
+    <div style="padding:28px 32px 8px">
+      <p style="margin:0 0 6px;font-size:18px;font-weight:700;color:#111827">Thanks, ${booking.name.split(' ')[0]}!</p>
+      <p style="margin:0 0 24px;font-size:15px;color:#6b7280;line-height:1.6">We've received your booking request and will reach out to <strong>${booking.phone}</strong> within 15 minutes to confirm your appointment.</p>
+      <table style="width:100%;border-collapse:collapse;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden">
+        ${detailRows}
+      </table>
+      <div style="margin:24px 0;padding:16px 20px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px">
+        <p style="margin:0;font-size:14px;color:#166534;line-height:1.6">
+          <strong>What happens next?</strong><br>
+          We'll text or call you shortly to confirm the date and time. If you need to make changes, just reply to this email or call us at <a href="tel:+14049135941" style="color:#166534;font-weight:600">(404) 913-5941</a>.
+        </p>
+      </div>
+    </div>
+    <div style="padding:8px 32px 28px">
+      <p style="margin:0;font-size:12px;color:#9ca3af">Booking ID: ${bookingId} &nbsp;·&nbsp; Kennesaw Standard Exterior Co.</p>
+    </div>
+  </div>
+</body>
+</html>`;
+
+    // ── Owner notification email ──
+    const ownerHtml = `
 <!DOCTYPE html>
 <html>
 <body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f3f4f6">
@@ -60,8 +109,8 @@ Deno.serve(async (req: Request) => {
     </div>
     <div style="padding:24px 32px 8px">
       <p style="margin:0 0 16px;font-size:15px;color:#374151">You have a new booking request. Log in to the <a href="https://kennesaw-standard.com/admin" style="color:#1a3d2b;font-weight:600">admin dashboard</a> to confirm.</p>
-      <table style="width:100%;border-collapse:collapse;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;font-size:14px">
-        ${detailRows}
+      <table style="width:100%;border-collapse:collapse;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden">
+        ${ownerDetailRows}
       </table>
     </div>
     <div style="padding:20px 32px 28px">
@@ -71,33 +120,45 @@ Deno.serve(async (req: Request) => {
 </body>
 </html>`;
 
-    const emailRes = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${RESEND_API_KEY}`,
-        'Content-Type':  'application/json',
-      },
-      body: JSON.stringify({
-        from:    'Kennesaw Standard <bookings@kennesaw-standard.com>',
-        to:      [OWNER_EMAIL, 'KennesawStandardExterior@gmail.com'],
-        subject: `New Booking — ${service} (${bookingId})`,
-        html,
+    // Send both emails in parallel
+    const [customerRes, ownerRes] = await Promise.all([
+      fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${RESEND_API_KEY}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          from:    'Kennesaw Standard <bookings@kennesaw-standard.com>',
+          to:      [booking.email],
+          subject: `Booking confirmed — ${service} on ${booking.date}`,
+          html:    customerHtml,
+        }),
       }),
-    });
+      fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${RESEND_API_KEY}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          from:    'Kennesaw Standard <bookings@kennesaw-standard.com>',
+          to:      [OWNER_EMAIL, 'KennesawStandardExterior@gmail.com'],
+          subject: `New Booking — ${service} (${bookingId})`,
+          html:    ownerHtml,
+        }),
+      }),
+    ]);
 
-    const emailData = await emailRes.json();
+    const [customerData, ownerData] = await Promise.all([customerRes.json(), ownerRes.json()]);
 
-    if (!emailRes.ok) {
-      console.error('Resend error:', emailData);
-      return new Response(JSON.stringify({ success: false, error: emailData }), {
+    if (!customerRes.ok) console.error('Customer email error:', customerData);
+    else console.log('Customer email sent. ID:', customerData.id);
+
+    if (!ownerRes.ok) {
+      console.error('Owner email error:', ownerData);
+      return new Response(JSON.stringify({ success: false, error: ownerData }), {
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
+    console.log('Owner email sent. ID:', ownerData.id);
 
-    console.log('Email sent. ID:', emailData.id);
-
-    // Optional Twilio SMS — only fires if secrets are set
+    // Optional Twilio SMS
     const TWILIO_SID   = Deno.env.get('TWILIO_ACCOUNT_SID');
     const TWILIO_TOKEN = Deno.env.get('TWILIO_AUTH_TOKEN');
     const TWILIO_FROM  = Deno.env.get('TWILIO_FROM');
@@ -108,7 +169,7 @@ Deno.serve(async (req: Request) => {
         `New booking — ${service}${pkg}`,
         `${booking.date} at ${booking.time}`,
         `${booking.name} | ${booking.phone}`,
-        `${booking.address}`,
+        booking.address,
         bookingId,
       ].join('\n');
 
@@ -120,7 +181,7 @@ Deno.serve(async (req: Request) => {
       const smsRes = await fetch(
         `https://api.twilio.com/2010-04-01/Accounts/${TWILIO_SID}/Messages.json`,
         {
-          method:  'POST',
+          method: 'POST',
           headers: {
             'Authorization': 'Basic ' + btoa(`${TWILIO_SID}:${TWILIO_TOKEN}`),
             'Content-Type':  'application/x-www-form-urlencoded',
@@ -133,7 +194,7 @@ Deno.serve(async (req: Request) => {
       else console.log('SMS sent. SID:', smsData.sid);
     }
 
-    return new Response(JSON.stringify({ success: true, email_id: emailData.id }), {
+    return new Response(JSON.stringify({ success: true }), {
       status: 200,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
