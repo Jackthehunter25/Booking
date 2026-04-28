@@ -279,10 +279,6 @@ let allBookings  = [];
 let activeFilter = 'all';
 
 // ── BOOT ──
-adminClient.auth.getSession().then(({ data: { session } }) => {
-  if (session) showAdmin(session.user);
-});
-
 adminClient.auth.onAuthStateChange((_, session) => {
   session ? showAdmin(session.user) : showLogin();
 });
@@ -339,7 +335,13 @@ async function loadBookings() {
 
   allBookings = data || [];
   updateStats();
-  renderTable();
+  try {
+    renderTable();
+  } catch (e) {
+    console.error('renderTable error:', e);
+    document.getElementById('tbody').innerHTML =
+      '<tr><td colspan="7" class="state-cell">Display error — check console (F12).</td></tr>';
+  }
 }
 
 // ── STATS ──
