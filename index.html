@@ -224,12 +224,14 @@ textarea { resize: vertical; min-height: 80px; }
 .lp-cta { display: inline-block; background: var(--green); color: #fff; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 15px; font-weight: 600; padding: 14px 30px; border-radius: 10px; text-decoration: none; box-shadow: 0 2px 12px rgba(42,92,69,.25); transition: background .15s, transform .15s; }
 .lp-cta:hover { background: #234e3b; transform: translateY(-1px); }
 .lp-photos { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.lp-photo { border-radius: 12px; aspect-ratio: 4/3; background-size: cover; background-position: center; }
+.lp-photo { border-radius: 12px; aspect-ratio: 4/3; background-size: cover; background-position: center; position: relative; overflow: hidden; }
+.lp-badge { position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,.52); color: #fff; font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; padding: 3px 9px; border-radius: 20px; }
+.lp-badge-after { background: var(--green); }
 /* ↓ To add real photos: replace background-color with background-image: url('your-photo.jpg') */
-.lp-p1 { background-color: #2a5c45; }
-.lp-p2 { background-color: #b4d4c4; }
-.lp-p3 { background-color: #3d6b55; }
-.lp-p4 { background-color: #e8f2ed; border: 1px solid var(--border); }
+.lp-p1 { background-image: url('photos/patio-before.jpg'); background-color: #2a5c45; }
+.lp-p2 { background-image: url('photos/patio-after.jpg'); background-color: #b4d4c4; }
+.lp-p3 { background-image: url('photos/car-detail.jpg'); background-color: #3d6b55; }
+.lp-p4 { background-image: url('photos/equipment.jpg'); background-color: #e8f2ed; }
 
 /* ─── WHY US ─── */
 .lp-why { background: var(--off); border-bottom: 1px solid var(--border); padding: 52px 40px; }
@@ -319,9 +321,8 @@ textarea { resize: vertical; min-height: 80px; }
       <a class="lp-cta" href="#book">Book Now &rarr;</a>
     </div>
     <div class="lp-photos">
-      <!-- Add real photos: set background-image: url('your-photo.jpg'); background-size: cover; on each div -->
-      <div class="lp-photo lp-p1"></div>
-      <div class="lp-photo lp-p2"></div>
+      <div class="lp-photo lp-p1"><span class="lp-badge">Before</span></div>
+      <div class="lp-photo lp-p2"><span class="lp-badge lp-badge-after">After</span></div>
       <div class="lp-photo lp-p3"></div>
       <div class="lp-photo lp-p4"></div>
     </div>
