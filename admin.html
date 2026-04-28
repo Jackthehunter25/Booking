@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Kennesaw Standard</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700;900&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<script>
+  const SUPABASE_URL  = 'https://fzwtxrxrxewmtkbqzwpn.supabase.co';
+  const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ6d3R4cnhyeGV3bXRrYnF6d3BuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzczMzc5ODgsImV4cCI6MjA5MjkxMzk4OH0.ChgpFoQiSlCvNjUVg_RxG91wJpdccKZnkr70KTPyunw';
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --white:   #ffffff;
+  --off:     #f7f6f2;
+  --border:  #e5e3dc;
+  --green:   #2a5c45;
+  --green-l: #e8f2ed;
+  --green-m: #b4d4c4;
+  --ink:     #111810;
+  --ink2:    #3d4038;
+  --muted:   #8a8f82;
+  --danger:  #c0392b;
+  --amber:   #b45309;
+  --amber-l: #fef3c7;
+  --blue:    #1d4ed8;
+  --blue-l:  #dbeafe;
+  --radius:  14px;
+  --shadow:  0 2px 16px rgba(17,24,16,.06);
+}
+
+body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--off); color: var(--ink); min-height: 100vh; }
+
+/* ── LOGIN ── */
+.login-wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+.login-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 40px; width: 100%; max-width: 380px; box-shadow: var(--shadow); }
+.login-logo { font-family: 'Fraunces', serif; font-size: 20px; font-weight: 700; color: var(--ink); margin-bottom: 4px; }
+.login-sub  { font-size: 11px; color: var(--muted); font-weight: 600; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 32px; }
+
+.field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 14px; }
+label  { font-size: 12px; font-weight: 600; color: var(--ink2); }
+input  {
+  background: var(--off); border: 1.5px solid var(--border); border-radius: 9px;
+  color: var(--ink); font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px;
+  padding: 10px 13px; outline: none; width: 100%; transition: border-color .2s, background .2s;
+}
+input:focus { border-color: var(--green); background: var(--white); }
+
+.btn-login {
+  background: var(--green); border: none; border-radius: 10px; color: #fff; cursor: pointer;
+  font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; font-weight: 600;
+  padding: 12px; width: 100%; margin-top: 6px; transition: background .15s;
+}
+.btn-login:hover    { background: #234e3b; }
+.btn-login:disabled { opacity: .5; cursor: not-allowed; }
+
+.login-err { font-size: 12px; color: var(--danger); margin-top: 12px; text-align: center; display: none; }
+.login-err.show { display: block; }
+
+/* ── NAV ── */
+nav {
+  background: var(--white); border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 32px; height: 60px; position: sticky; top: 0; z-index: 100;
+}
+.nav-logo       { font-family: 'Fraunces', serif; font-size: 16px; font-weight: 700; color: var(--ink); }
+.nav-logo small { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 10px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); display: block; }
+.nav-right      { display: flex; align-items: center; gap: 14px; }
+.nav-user       { font-size: 13px; color: var(--muted); }
+.btn-signout    {
+  background: var(--white); border: 1.5px solid var(--border); border-radius: 8px;
+  color: var(--ink2); cursor: pointer; font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 13px; font-weight: 600; padding: 7px 14px; transition: all .15s;
+}
+.btn-signout:hover { border-color: var(--danger); color: var(--danger); }
+.btn-refresh {
+  background: var(--white); border: 1.5px solid var(--border); border-radius: 8px;
+  color: var(--ink2); cursor: pointer; font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 13px; font-weight: 600; padding: 7px 14px; transition: all .15s;
+}
+.btn-refresh:hover { border-color: var(--green); color: var(--green); }
+
+/* ── MAIN ── */
+.main { padding: 28px 32px 60px; max-width: 1280px; margin: 0 auto; }
+
+/* ── STATS ── */
+.stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 24px; }
+.stat  { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px; box-shadow: var(--shadow); }
+.stat-label { font-size: 10px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+.stat-val   { font-family: 'Fraunces', serif; font-size: 32px; font-weight: 700; line-height: 1; }
+
+/* ── FILTER BAR ── */
+.filter-bar { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; }
+.filter-btn {
+  background: var(--white); border: 1.5px solid var(--border); border-radius: 8px;
+  color: var(--ink2); cursor: pointer; font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 13px; font-weight: 500; padding: 7px 16px; transition: all .15s;
+}
+.filter-btn:hover        { border-color: var(--ink2); }
+.filter-btn.active       { background: var(--green-l); border-color: var(--green); color: var(--green); font-weight: 600; }
+
+/* ── TABLE ── */
+.table-wrap { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
+table { width: 100%; border-collapse: collapse; }
+thead th {
+  background: var(--off); border-bottom: 1px solid var(--border);
+  color: var(--muted); font-size: 10px; font-weight: 600; letter-spacing: 1.5px;
+  text-transform: uppercase; padding: 11px 16px; text-align: left; white-space: nowrap;
+}
+tbody tr.data-row { border-bottom: 1px solid var(--border); cursor: pointer; transition: background .1s; }
+tbody tr.data-row:hover    { background: var(--off); }
+tbody tr.data-row.expanded { background: var(--green-l); }
+td { padding: 13px 16px; font-size: 13px; vertical-align: middle; }
+
+.td-primary   { font-weight: 600; color: var(--ink); }
+.td-secondary { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+/* ── BADGES ── */
+.badge { display: inline-flex; align-items: center; border-radius: 6px; font-size: 11px; font-weight: 600; padding: 3px 9px; white-space: nowrap; }
+.badge-pending   { background: var(--amber-l); color: var(--amber); }
+.badge-confirmed { background: var(--blue-l);  color: var(--blue); }
+.badge-completed { background: var(--green-l); color: var(--green); }
+
+/* ── ACTION BUTTONS ── */
+.actions { display: flex; gap: 6px; flex-wrap: wrap; }
+.act-btn {
+  border-radius: 7px; cursor: pointer; font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 11px; font-weight: 600; padding: 5px 11px; transition: all .15s; white-space: nowrap;
+  border: 1.5px solid transparent;
+}
+.act-confirm  { background: var(--blue-l);  border-color: var(--blue);  color: var(--blue); }
+.act-complete { background: var(--green-l); border-color: var(--green); color: var(--green); }
+.act-confirm:hover  { background: var(--blue);  color: #fff; }
+.act-complete:hover { background: var(--green); color: #fff; }
+.act-btn:disabled { opacity: .4; cursor: not-allowed; }
+
+/* ── EXPANDED DETAIL ROW ── */
+.detail-row { display: none; }
+.detail-row.open { display: table-row; }
+.detail-cell {
+  padding: 0 16px 16px;
+  background: var(--green-l);
+  border-bottom: 1px solid var(--border);
+}
+.detail-inner {
+  background: var(--white); border: 1px solid var(--border); border-radius: 10px;
+  padding: 16px; display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 12px;
+}
+.detail-item .dk { font-size: 10px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); margin-bottom: 3px; }
+.detail-item .dv { font-size: 13px; font-weight: 500; color: var(--ink); word-break: break-word; }
+
+/* ── EMPTY / LOADING ── */
+.state-cell { text-align: center; padding: 56px 20px; color: var(--muted); font-size: 14px; }
+.state-icon { font-size: 32px; display: block; margin-bottom: 10px; }
+
+/* ── SPINNER ── */
+.spinner { display: inline-block; width: 13px; height: 13px; border: 2px solid rgba(42,92,69,.2); border-top-color: var(--green); border-radius: 50%; animation: spin .7s linear infinite; vertical-align: middle; margin-right: 6px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── TOAST ── */
+.toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #1f1f1f; color: #fff; font-size: 13px; font-weight: 500; padding: 10px 20px; border-radius: 9px; box-shadow: 0 4px 20px rgba(0,0,0,.2); z-index: 999; opacity: 0; pointer-events: none; transition: opacity .3s; white-space: nowrap; }
+.toast.show { opacity: 1; }
+
+@media (max-width: 860px) {
+  .stats { grid-template-columns: 1fr 1fr; }
+  .main  { padding: 16px 16px 60px; }
+  nav    { padding: 0 16px; }
+  .hide-sm { display: none; }
+  .detail-inner { grid-template-columns: 1fr 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══ LOGIN VIEW ══ -->
+<div id="loginView" class="login-wrap">
+  <div class="login-card">
+    <div class="login-logo">Kennesaw Standard</div>
+    <div class="login-sub">Admin Portal</div>
+    <div class="field">
+      <label>Email</label>
+      <input type="email" id="loginEmail" placeholder="you@example.com" autocomplete="email">
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <input type="password" id="loginPass" placeholder="••••••••" autocomplete="current-password">
+    </div>
+    <button class="btn-login" id="loginBtn" onclick="doLogin()">Sign In</button>
+    <div class="login-err" id="loginErr">Incorrect email or password.</div>
+  </div>
+</div>
+
+<!-- ══ ADMIN VIEW ══ -->
+<div id="adminView" style="display:none">
+  <nav>
+    <div class="nav-logo">
+      Kennesaw Standard Exterior Co.
+      <small>Admin Dashboard</small>
+    </div>
+    <div class="nav-right">
+      <span class="nav-user" id="navEmail"></span>
+      <button class="btn-refresh" onclick="loadBookings()">↻ Refresh</button>
+      <button class="btn-signout" onclick="doSignOut()">Sign Out</button>
+    </div>
+  </nav>
+
+  <div class="main">
+
+    <!-- STATS -->
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-label">Total</div>
+        <div class="stat-val" id="statTotal">—</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Pending</div>
+        <div class="stat-val" id="statPending" style="color:var(--amber)">—</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Confirmed</div>
+        <div class="stat-val" id="statConfirmed" style="color:var(--blue)">—</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Completed</div>
+        <div class="stat-val" id="statCompleted" style="color:var(--green)">—</div>
+      </div>
+    </div>
+
+    <!-- FILTER -->
+    <div class="filter-bar">
+      <button class="filter-btn active" data-filter="all"       onclick="setFilter(this)">All</button>
+      <button class="filter-btn"        data-filter="pending"   onclick="setFilter(this)">Pending</button>
+      <button class="filter-btn"        data-filter="confirmed" onclick="setFilter(this)">Confirmed</button>
+      <button class="filter-btn"        data-filter="completed" onclick="setFilter(this)">Completed</button>
+    </div>
+
+    <!-- TABLE -->
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Booked</th>
+            <th>Customer</th>
+            <th>Service</th>
+            <th class="hide-sm">Appointment</th>
+            <th class="hide-sm">Est. Price</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="tbody">
+          <tr><td colspan="7" class="state-cell"><span class="spinner"></span>Loading…</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SVC = {
+  detail:   'Car Detailing',
+  trash:    'Trash Can Cleaning',
+  pressure: 'Driveway Pressure Washing',
+  window:   'Window Cleaning',
+};
+
+let adminClient;
+try {
+  adminClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+} catch (e) { console.error('Supabase init:', e); }
+
+let allBookings  = [];
+let activeFilter = 'all';
+
+// ── BOOT ──
+adminClient.auth.getSession().then(({ data: { session } }) => {
+  if (session) showAdmin(session.user);
+});
+
+adminClient.auth.onAuthStateChange((_, session) => {
+  session ? showAdmin(session.user) : showLogin();
+});
+
+// ── LOGIN ──
+document.getElementById('loginPass').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+
+async function doLogin() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass  = document.getElementById('loginPass').value;
+  const btn   = document.getElementById('loginBtn');
+  const err   = document.getElementById('loginErr');
+
+  err.classList.remove('show');
+  btn.disabled    = true;
+  btn.innerHTML   = '<span class="spinner"></span>Signing in…';
+
+  const { error } = await adminClient.auth.signInWithPassword({ email, password: pass });
+  if (error) {
+    err.classList.add('show');
+    btn.disabled  = false;
+    btn.innerHTML = 'Sign In';
+  }
+}
+
+async function doSignOut() {
+  await adminClient.auth.signOut();
+}
+
+// ── VIEWS ──
+function showLogin() {
+  document.getElementById('loginView').style.display  = 'flex';
+  document.getElementById('adminView').style.display  = 'none';
+}
+
+function showAdmin(user) {
+  document.getElementById('loginView').style.display  = 'none';
+  document.getElementById('adminView').style.display  = 'block';
+  document.getElementById('navEmail').textContent     = user.email;
+  loadBookings();
+}
+
+// ── LOAD ──
+async function loadBookings() {
+  document.getElementById('tbody').innerHTML =
+    '<tr><td colspan="7" class="state-cell"><span class="spinner"></span>Loading…</td></tr>';
+
+  const { data, error } = await adminClient
+    .from('bookings')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (error) { showToast('Failed to load bookings.'); console.error(error); return; }
+
+  allBookings = data || [];
+  updateStats();
+  renderTable();
+}
+
+// ── STATS ──
+function updateStats() {
+  const count = s => allBookings.filter(b => b.status === s).length;
+  document.getElementById('statTotal').textContent     = allBookings.length;
+  document.getElementById('statPending').textContent   = count('pending');
+  document.getElementById('statConfirmed').textContent = count('confirmed');
+  document.getElementById('statCompleted').textContent = count('completed');
+}
+
+// ── FILTER ──
+function setFilter(el) {
+  activeFilter = el.dataset.filter;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  renderTable();
+}
+
+// ── RENDER ──
+function renderTable() {
+  const tbody    = document.getElementById('tbody');
+  const filtered = activeFilter === 'all'
+    ? allBookings
+    : allBookings.filter(b => b.status === activeFilter);
+
+  if (!filtered.length) {
+    const label = activeFilter === 'all' ? '' : activeFilter + ' ';
+    tbody.innerHTML = `<tr><td colspan="7" class="state-cell"><span class="state-icon">📭</span>No ${label}bookings yet.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = filtered.map(b => {
+    const bookedDate = new Date(b.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    const bookedTime = new Date(b.created_at).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+
+    return `
+      <tr class="data-row" id="row-${b.id}" onclick="toggleDetail('${b.id}')">
+        <td>
+          <div class="td-primary">${bookedDate}</div>
+          <div class="td-secondary">${bookedTime}</div>
+        </td>
+        <td>
+          <div class="td-primary">${esc(b.name || '—')}</div>
+          <div class="td-secondary">${esc(b.phone || '')}</div>
+        </td>
+        <td>${esc(SVC[b.service] || b.service || '—')}</td>
+        <td class="hide-sm">
+          <div>${esc(b.date || '—')}</div>
+          <div class="td-secondary">${esc(b.time || '')}</div>
+        </td>
+        <td class="hide-sm" style="font-weight:600;color:var(--green)">${esc(b.price_estimate || '—')}</td>
+        <td>${badge(b.status)}</td>
+        <td onclick="event.stopPropagation()">${actions(b)}</td>
+      </tr>
+      <tr class="detail-row" id="detail-${b.id}">
+        <td colspan="7" class="detail-cell">${detailGrid(b)}</td>
+      </tr>`;
+  }).join('');
+}
+
+function badge(status) {
+  const map = {
+    pending:   '<span class="badge badge-pending">Pending</span>',
+    confirmed: '<span class="badge badge-confirmed">Confirmed</span>',
+    completed: '<span class="badge badge-completed">Completed</span>',
+  };
+  return map[status] || `<span class="badge">${esc(status)}</span>`;
+}
+
+function actions(b) {
+  if (b.status === 'completed') return '<span style="font-size:12px;color:var(--muted)">Done ✓</span>';
+  const confirmBtn  = b.status === 'pending'
+    ? `<button class="act-btn act-confirm"  onclick="setStatus('${b.id}','confirmed')">Confirm</button>`
+    : '';
+  const completeBtn = `<button class="act-btn act-complete" onclick="setStatus('${b.id}','completed')">Complete</button>`;
+  return `<div class="actions">${confirmBtn}${completeBtn}</div>`;
+}
+
+function detailGrid(b) {
+  const d = b.details || {};
+  const rows = [
+    { k: 'Email',       v: b.email },
+    { k: 'Address',     v: b.address },
+    b.gate_code          ? { k: 'Gate Code',  v: b.gate_code }            : null,
+    b.referral           ? { k: 'Referral',   v: b.referral }             : null,
+    b.addons?.length     ? { k: 'Add-ons',    v: b.addons.join(', ') }   : null,
+    d.package            ? { k: 'Package',    v: d.package }              : null,
+    d.vehicle            ? { k: 'Vehicle',    v: d.vehicle }              : null,
+    d.type               ? { k: 'Type',       v: d.type }                 : null,
+    d.condition          ? { k: 'Condition',  v: d.condition }            : null,
+    d.count              ? { k: 'Count',      v: d.count }                : null,
+    d.binTypes           ? { k: 'Bin Types',  v: d.binTypes }             : null,
+    d.size               ? { k: 'Bin Size',   v: d.size }                 : null,
+    d.frequency          ? { k: 'Frequency',  v: d.frequency }            : null,
+    d.surface            ? { k: 'Surface',    v: d.surface }              : null,
+    d.area               ? { k: 'Area',       v: d.area }                 : null,
+    d.staining           ? { k: 'Staining',   v: d.staining }             : null,
+    d.scope              ? { k: 'Scope',      v: d.scope }                : null,
+    d.stories            ? { k: 'Stories',    v: d.stories }              : null,
+    d.notes              ? { k: 'Notes',      v: d.notes }                : null,
+  ].filter(Boolean);
+
+  return `<div class="detail-inner">${rows.map(r =>
+    `<div class="detail-item"><div class="dk">${esc(r.k)}</div><div class="dv">${esc(String(r.v ?? '—'))}</div></div>`
+  ).join('')}</div>`;
+}
+
+// ── TOGGLE DETAIL ──
+function toggleDetail(id) {
+  const row    = document.getElementById('row-' + id);
+  const detail = document.getElementById('detail-' + id);
+  const isOpen = detail.classList.contains('open');
+
+  document.querySelectorAll('.detail-row.open').forEach(r => r.classList.remove('open'));
+  document.querySelectorAll('.data-row.expanded').forEach(r => r.classList.remove('expanded'));
+
+  if (!isOpen) {
+    detail.classList.add('open');
+    row.classList.add('expanded');
+  }
+}
+
+// ── UPDATE STATUS ──
+async function setStatus(id, status) {
+  const booking = allBookings.find(b => b.id === id);
+  if (booking) booking.status = status;
+  updateStats();
+  renderTable();
+
+  const { error } = await adminClient
+    .from('bookings')
+    .update({ status })
+    .eq('id', id);
+
+  if (error) {
+    showToast('Update failed — please refresh.');
+    console.error(error);
+    loadBookings();
+    return;
+  }
+  showToast(`Marked as ${status}.`);
+}
+
+// ── HELPERS ──
+function esc(s) {
+  return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3500);
+}
+</script>
+</body>
+</html>
