@@ -911,6 +911,7 @@ async function submitBooking() {
   btn.disabled = true;
   btn.innerHTML = '<span class="spinner"></span>Submitting…';
 
+  const bookingUuid = crypto.randomUUID();
   const details = svcDetails();
   const dateVal = document.getElementById('bdate').value;
   const dateStr = dateVal
@@ -918,6 +919,7 @@ async function submitBooking() {
     : '';
 
   const payload = {
+    id:       bookingUuid,
     service:  selSvc,
     details:  details,
     name:     (document.getElementById('fname').value + ' ' + document.getElementById('lname').value).trim(),
@@ -934,11 +936,9 @@ async function submitBooking() {
 
   try {
     // 1. Save booking to Supabase
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from('bookings')
-      .insert([payload])
-      .select()
-      .single();
+      .insert([payload]);
 
     if (error) throw error;
 
@@ -946,7 +946,7 @@ async function submitBooking() {
     // This runs server-side so your Twilio secret key is never exposed
     try {
       await supabase.functions.invoke('notify-booking', {
-        body: { booking: payload, booking_id: data.id }
+        body: { booking: payload, booking_id: bookingUuid }
       });
     } catch (smsErr) {
       // SMS failure shouldn't block the booking confirmation
@@ -954,7 +954,7 @@ async function submitBooking() {
     }
 
     // 3. Show success
-    const bookingId = 'KSE-' + data.id.slice(0, 8).toUpperCase();
+    const bookingId = 'KSE-' + bookingUuid.slice(0, 8).toUpperCase();
     document.getElementById('bid').textContent = bookingId;
     document.getElementById('successPhone').textContent = payload.phone;
     document.getElementById('successRows').innerHTML = document.getElementById('reviewRows').innerHTML;
