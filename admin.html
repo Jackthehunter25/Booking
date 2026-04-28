@@ -428,7 +428,7 @@ function detailGrid(b) {
     { k: 'Address',     v: b.address },
     b.gate_code          ? { k: 'Gate Code',  v: b.gate_code }            : null,
     b.referral           ? { k: 'Referral',   v: b.referral }             : null,
-    b.addons?.length     ? { k: 'Add-ons',    v: b.addons.join(', ') }   : null,
+    Array.isArray(b.addons) && b.addons.length ? { k: 'Add-ons', v: b.addons.join(', ') } : null,
     d.package            ? { k: 'Package',    v: d.package }              : null,
     d.vehicle            ? { k: 'Vehicle',    v: d.vehicle }              : null,
     d.type               ? { k: 'Type',       v: d.type }                 : null,
