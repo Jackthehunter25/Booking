@@ -215,7 +215,51 @@ textarea { resize: vertical; min-height: 80px; }
 .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #1f1f1f; color: #fff; font-size: 14px; font-weight: 500; padding: 12px 22px; border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,.25); z-index: 999; opacity: 0; pointer-events: none; transition: opacity .3s; }
 .toast.show { opacity: 1; }
 
+/* ─── HERO ─── */
+.lp-hero { background: var(--white); border-bottom: 1px solid var(--border); padding: 64px 40px; }
+.lp-inner { max-width: 1080px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 52px; align-items: center; }
+.lp-eyebrow { font-size: 11px; font-weight: 600; letter-spacing: 2.5px; text-transform: uppercase; color: var(--green); margin-bottom: 14px; }
+.lp-h { font-family: 'Fraunces', serif; font-size: 52px; font-weight: 900; line-height: 1.05; letter-spacing: -.5px; color: var(--ink); margin-bottom: 18px; }
+.lp-sub { font-size: 16px; color: var(--muted); line-height: 1.65; margin-bottom: 30px; }
+.lp-cta { display: inline-block; background: var(--green); color: #fff; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 15px; font-weight: 600; padding: 14px 30px; border-radius: 10px; text-decoration: none; box-shadow: 0 2px 12px rgba(42,92,69,.25); transition: background .15s, transform .15s; }
+.lp-cta:hover { background: #234e3b; transform: translateY(-1px); }
+.lp-photos { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.lp-photo { border-radius: 12px; aspect-ratio: 4/3; background-size: cover; background-position: center; }
+/* ↓ To add real photos: replace background-color with background-image: url('your-photo.jpg') */
+.lp-p1 { background-color: #2a5c45; }
+.lp-p2 { background-color: #b4d4c4; }
+.lp-p3 { background-color: #3d6b55; }
+.lp-p4 { background-color: #e8f2ed; border: 1px solid var(--border); }
+
+/* ─── WHY US ─── */
+.lp-why { background: var(--off); border-bottom: 1px solid var(--border); padding: 52px 40px; }
+.lp-why-inner { max-width: 860px; margin: 0 auto; display: grid; grid-template-columns: repeat(3, 1fr); gap: 36px; }
+.lp-why-item { text-align: center; }
+.lp-why-icon { font-size: 30px; margin-bottom: 12px; }
+.lp-why-title { font-family: 'Fraunces', serif; font-size: 18px; font-weight: 700; color: var(--ink); margin-bottom: 8px; }
+.lp-why-desc { font-size: 14px; color: var(--muted); line-height: 1.65; }
+
+/* ─── REVIEWS ─── */
+.lp-reviews { background: var(--white); border-bottom: 1px solid var(--border); padding: 60px 40px; }
+.lp-rev-head { font-family: 'Fraunces', serif; font-size: 28px; font-weight: 700; color: var(--ink); text-align: center; margin-bottom: 36px; letter-spacing: -.3px; }
+.lp-rev-grid { max-width: 1000px; margin: 0 auto; display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.lp-rev-card { background: var(--off); border: 1px solid var(--border); border-radius: var(--radius); padding: 26px; }
+.lp-stars { color: #f59e0b; font-size: 15px; letter-spacing: 2px; margin-bottom: 14px; }
+.lp-rev-text { font-size: 14px; color: var(--ink2); line-height: 1.7; margin-bottom: 16px; }
+.lp-rev-author { font-size: 12px; font-weight: 600; color: var(--muted); }
+
 /* ─── RESPONSIVE ─── */
+@media (max-width: 760px) {
+  .lp-hero { padding: 40px 20px; }
+  .lp-inner { grid-template-columns: 1fr; gap: 32px; }
+  .lp-h { font-size: 36px; }
+  .lp-why { padding: 40px 20px; }
+  .lp-why-inner { grid-template-columns: 1fr; gap: 24px; }
+  .lp-why-item { text-align: left; display: flex; gap: 16px; align-items: flex-start; }
+  .lp-why-icon { flex-shrink: 0; margin-bottom: 0; }
+  .lp-reviews { padding: 44px 20px; }
+  .lp-rev-grid { grid-template-columns: 1fr; }
+}
 @media (max-width: 560px) {
   nav { padding: 0 20px; }
   .prog-wrap { padding: 0 20px; }
@@ -265,8 +309,76 @@ textarea { resize: vertical; min-height: 80px; }
   </div>
 </div>
 
+<!-- HERO -->
+<section class="lp-hero">
+  <div class="lp-inner">
+    <div>
+      <div class="lp-eyebrow">Serving Kennesaw &amp; Surrounding Areas</div>
+      <h1 class="lp-h">Exterior services<br>done right.</h1>
+      <p class="lp-sub">Professional, insured, and local. Car detailing, trash can cleaning, pressure washing, and window cleaning — book online in 2 minutes.</p>
+      <a class="lp-cta" href="#book">Book Now &rarr;</a>
+    </div>
+    <div class="lp-photos">
+      <!-- Add real photos: set background-image: url('your-photo.jpg'); background-size: cover; on each div -->
+      <div class="lp-photo lp-p1"></div>
+      <div class="lp-photo lp-p2"></div>
+      <div class="lp-photo lp-p3"></div>
+      <div class="lp-photo lp-p4"></div>
+    </div>
+  </div>
+</section>
+
+<!-- WHY US -->
+<section class="lp-why">
+  <div class="lp-why-inner">
+    <div class="lp-why-item">
+      <div class="lp-why-icon">⚡</div>
+      <div>
+        <div class="lp-why-title">15-Minute Response</div>
+        <div class="lp-why-desc">We reply to every booking within 15 minutes during business hours — no waiting around.</div>
+      </div>
+    </div>
+    <div class="lp-why-item">
+      <div class="lp-why-icon">🛡️</div>
+      <div>
+        <div class="lp-why-title">Fully Insured</div>
+        <div class="lp-why-desc">Every job is fully covered. Your home, vehicle, and property are in safe hands.</div>
+      </div>
+    </div>
+    <div class="lp-why-item">
+      <div class="lp-why-icon">✅</div>
+      <div>
+        <div class="lp-why-title">Satisfaction Guaranteed</div>
+        <div class="lp-why-desc">Not happy with the result? We'll come back and make it right. No questions asked.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- REVIEWS -->
+<section class="lp-reviews">
+  <div class="lp-rev-head">What our customers say</div>
+  <div class="lp-rev-grid">
+    <div class="lp-rev-card">
+      <div class="lp-stars">★★★★★</div>
+      <p class="lp-rev-text">"My driveway looks brand new. They showed up on time, were professional start to finish, and the price was totally fair. Will definitely use them again."</p>
+      <div class="lp-rev-author">— Sarah M., Kennesaw</div>
+    </div>
+    <div class="lp-rev-card">
+      <div class="lp-stars">★★★★★</div>
+      <p class="lp-rev-text">"Booked a full car detail online and they responded in under 10 minutes. My car looks better than the day I bought it. Incredible work."</p>
+      <div class="lp-rev-author">— Marcus T., Acworth</div>
+    </div>
+    <div class="lp-rev-card">
+      <div class="lp-stars">★★★★★</div>
+      <p class="lp-rev-text">"So convenient — booked trash can cleaning in 2 minutes. They came the next morning and did a great job. My bins actually smell clean now."</p>
+      <div class="lp-rev-author">— Jennifer K., Kennesaw</div>
+    </div>
+  </div>
+</section>
+
 <!-- PROGRESS -->
-<div class="prog-wrap">
+<div class="prog-wrap" id="book">
   <div class="prog-inner">
     <div class="p-step active" id="ps1"><div class="p-dot active" id="pd1">1</div><div class="p-label">Service</div></div>
     <div class="p-line" id="pl1"></div>
