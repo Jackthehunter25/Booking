@@ -164,12 +164,86 @@ td { padding: 13px 16px; font-size: 13px; vertical-align: middle; }
 .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #1f1f1f; color: #fff; font-size: 13px; font-weight: 500; padding: 10px 20px; border-radius: 9px; box-shadow: 0 4px 20px rgba(0,0,0,.2); z-index: 999; opacity: 0; pointer-events: none; transition: opacity .3s; white-space: nowrap; }
 .toast.show { opacity: 1; }
 
+/* ── MODAL ── */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(17,24,16,.5);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 200; padding: 20px;
+}
+.modal-card {
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: var(--radius); width: 100%; max-width: 580px;
+  max-height: 90vh; overflow-y: auto;
+  box-shadow: 0 8px 40px rgba(17,24,16,.2);
+}
+.modal-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 20px 24px 16px; border-bottom: 1px solid var(--border);
+  position: sticky; top: 0; background: var(--white); z-index: 1;
+}
+.modal-title { font-family: 'Fraunces', serif; font-size: 18px; font-weight: 700; color: var(--ink); }
+.modal-close {
+  background: none; border: 1.5px solid var(--border); border-radius: 7px;
+  color: var(--ink2); cursor: pointer; font-size: 16px; font-weight: 700;
+  width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
+  transition: all .15s; line-height: 1;
+}
+.modal-close:hover { border-color: var(--danger); color: var(--danger); }
+.modal-body { padding: 20px 24px; }
+.modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.modal-grid .full { grid-column: 1 / -1; }
+.modal-section { font-size: 10px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin: 8px 0 4px; grid-column: 1 / -1; }
+.modal-footer {
+  display: flex; gap: 8px; justify-content: flex-end;
+  padding: 16px 24px; border-top: 1px solid var(--border);
+  position: sticky; bottom: 0; background: var(--white);
+}
+.modal-body select, .modal-body textarea {
+  background: var(--off); border: 1.5px solid var(--border); border-radius: 9px;
+  color: var(--ink); font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px;
+  padding: 10px 13px; outline: none; width: 100%; transition: border-color .2s, background .2s;
+}
+.modal-body select { appearance: none; cursor: pointer; }
+.modal-body select:focus, .modal-body textarea:focus { border-color: var(--green); background: var(--white); }
+.modal-body textarea { resize: vertical; min-height: 72px; }
+.btn-cancel {
+  background: var(--white); border: 1.5px solid var(--border); border-radius: 9px;
+  color: var(--ink2); cursor: pointer; font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 14px; font-weight: 600; padding: 10px 18px; transition: all .15s;
+}
+.btn-cancel:hover { border-color: var(--ink); }
+.btn-save {
+  background: var(--green); border: none; border-radius: 9px; color: #fff;
+  cursor: pointer; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px;
+  font-weight: 600; padding: 10px 20px; transition: background .15s;
+}
+.btn-save:hover    { background: #234e3b; }
+.btn-save:disabled { opacity: .5; cursor: not-allowed; }
+
+/* ── EDIT / DELETE BUTTONS ── */
+.act-edit   { background: var(--off);   border-color: var(--border); color: var(--ink2); }
+.act-delete { background: #fef2f2; border-color: #fca5a5; color: var(--danger); }
+.act-edit:hover   { background: var(--ink2); border-color: var(--ink2); color: #fff; }
+.act-delete:hover { background: var(--danger); border-color: var(--danger); color: #fff; }
+
+/* ── ADD BOOKING BTN ── */
+.btn-add {
+  background: var(--green); border: none; border-radius: 8px; color: #fff;
+  cursor: pointer; font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 13px; font-weight: 600; padding: 7px 14px;
+  margin-left: auto; transition: background .15s; white-space: nowrap;
+}
+.btn-add:hover { background: #234e3b; }
+
 @media (max-width: 860px) {
   .stats { grid-template-columns: 1fr 1fr; }
   .main  { padding: 16px 16px 60px; }
   nav    { padding: 0 16px; }
   .hide-sm { display: none; }
   .detail-inner { grid-template-columns: 1fr 1fr; }
+  .modal-grid { grid-template-columns: 1fr; }
+  .modal-grid .full { grid-column: 1; }
+  .modal-section { grid-column: 1; }
 }
 </style>
 </head>
@@ -235,6 +309,7 @@ td { padding: 13px 16px; font-size: 13px; vertical-align: middle; }
       <button class="filter-btn"        data-filter="pending"   onclick="setFilter(this)">Pending</button>
       <button class="filter-btn"        data-filter="confirmed" onclick="setFilter(this)">Confirmed</button>
       <button class="filter-btn"        data-filter="completed" onclick="setFilter(this)">Completed</button>
+      <button class="btn-add"                                   onclick="openAddModal()">+ Add Booking</button>
     </div>
 
     <!-- TABLE -->
@@ -257,6 +332,88 @@ td { padding: 13px 16px; font-size: 13px; vertical-align: middle; }
       </table>
     </div>
 
+  </div>
+</div>
+
+<!-- ══ ADD / EDIT MODAL ══ -->
+<div id="bookingModal" class="modal-overlay" style="display:none" onclick="closeModalOutside(event)">
+  <div class="modal-card">
+    <div class="modal-header">
+      <div class="modal-title" id="modalTitle">Add Booking</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-grid">
+        <div class="modal-section">Customer</div>
+        <div class="field full">
+          <label>Full Name *</label>
+          <input type="text" id="mName" placeholder="John Smith">
+        </div>
+        <div class="field">
+          <label>Email *</label>
+          <input type="email" id="mEmail" placeholder="john@example.com">
+        </div>
+        <div class="field">
+          <label>Phone *</label>
+          <input type="tel" id="mPhone" placeholder="(555) 555-5555">
+        </div>
+        <div class="field full">
+          <label>Address *</label>
+          <input type="text" id="mAddress" placeholder="123 Main St, Kennesaw, GA">
+        </div>
+
+        <div class="modal-section">Appointment</div>
+        <div class="field">
+          <label>Service *</label>
+          <select id="mService">
+            <option value="">Select service…</option>
+            <option value="detail">Car Detailing</option>
+            <option value="trash">Trash Can Cleaning</option>
+            <option value="pressure">Driveway Pressure Washing</option>
+            <option value="window">Window Cleaning</option>
+            <option value="quote">Free Quote</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Status</label>
+          <select id="mStatus">
+            <option value="pending">Pending</option>
+            <option value="confirmed">Confirmed</option>
+            <option value="completed">Completed</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Date</label>
+          <input type="text" id="mDate" placeholder="e.g. Monday, May 5, 2025">
+        </div>
+        <div class="field">
+          <label>Time</label>
+          <input type="text" id="mTime" placeholder="e.g. 8am – 10am">
+        </div>
+
+        <div class="modal-section">Details</div>
+        <div class="field">
+          <label>Price Estimate</label>
+          <input type="text" id="mPrice" placeholder="e.g. $150 – $200">
+        </div>
+        <div class="field">
+          <label>Gate Code</label>
+          <input type="text" id="mGateCode" placeholder="Optional">
+        </div>
+        <div class="field">
+          <label>Referral</label>
+          <input type="text" id="mReferral" placeholder="How did they hear about you?">
+        </div>
+        <div class="field full">
+          <label>Notes</label>
+          <textarea id="mNotes" placeholder="Any additional notes…"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn-save"   id="modalSaveBtn" onclick="saveBooking()">Add Booking</button>
+    </div>
   </div>
 </div>
 
@@ -413,12 +570,16 @@ function badge(status) {
 }
 
 function actions(b) {
-  if (b.status === 'completed') return '<span style="font-size:12px;color:var(--muted)">Done ✓</span>';
+  const editBtn   = `<button class="act-btn act-edit"   onclick="openEditModal('${b.id}')">Edit</button>`;
+  const deleteBtn = `<button class="act-btn act-delete" onclick="deleteBooking('${b.id}')">Delete</button>`;
+  if (b.status === 'completed') {
+    return `<div class="actions"><span style="font-size:12px;color:var(--muted)">Done ✓</span>${editBtn}${deleteBtn}</div>`;
+  }
   const confirmBtn  = b.status === 'pending'
     ? `<button class="act-btn act-confirm"  onclick="setStatus('${b.id}','confirmed')">Confirm</button>`
     : '';
   const completeBtn = `<button class="act-btn act-complete" onclick="setStatus('${b.id}','completed')">Complete</button>`;
-  return `<div class="actions">${confirmBtn}${completeBtn}</div>`;
+  return `<div class="actions">${confirmBtn}${completeBtn}${editBtn}${deleteBtn}</div>`;
 }
 
 function detailGrid(b) {
@@ -484,6 +645,128 @@ async function setStatus(id, status) {
     return;
   }
   showToast(`Marked as ${status}.`);
+}
+
+// ── ADD / EDIT MODAL ──
+let editingId = null;
+
+function openAddModal() {
+  editingId = null;
+  document.getElementById('modalTitle').textContent    = 'Add Booking';
+  document.getElementById('modalSaveBtn').textContent  = 'Add Booking';
+  ['mName','mEmail','mPhone','mAddress','mDate','mTime','mPrice','mGateCode','mReferral','mNotes'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('mService').value = '';
+  document.getElementById('mStatus').value  = 'pending';
+  document.getElementById('bookingModal').style.display = 'flex';
+  setTimeout(() => document.getElementById('mName').focus(), 50);
+}
+
+function openEditModal(id) {
+  const b = allBookings.find(b => b.id === id);
+  if (!b) return;
+  editingId = id;
+  document.getElementById('modalTitle').textContent   = 'Edit Booking';
+  document.getElementById('modalSaveBtn').textContent = 'Save Changes';
+
+  document.getElementById('mName').value     = b.name    || '';
+  document.getElementById('mEmail').value    = b.email   || '';
+  document.getElementById('mPhone').value    = b.phone   || '';
+  document.getElementById('mAddress').value  = b.address || '';
+  document.getElementById('mService').value  = b.service || '';
+  document.getElementById('mStatus').value   = b.status  || 'pending';
+  document.getElementById('mDate').value     = b.date    || '';
+  document.getElementById('mTime').value     = b.time    || '';
+  document.getElementById('mPrice').value    = b.price_estimate || '';
+  document.getElementById('mGateCode').value = b.gate_code      || '';
+  document.getElementById('mReferral').value = b.referral       || '';
+  document.getElementById('mNotes').value    = (b.details && b.details.notes) ? b.details.notes : '';
+
+  document.getElementById('bookingModal').style.display = 'flex';
+  setTimeout(() => document.getElementById('mName').focus(), 50);
+}
+
+function closeModal() {
+  document.getElementById('bookingModal').style.display = 'none';
+}
+
+function closeModalOutside(e) {
+  if (e.target.id === 'bookingModal') closeModal();
+}
+
+async function saveBooking() {
+  const name    = document.getElementById('mName').value.trim();
+  const email   = document.getElementById('mEmail').value.trim();
+  const phone   = document.getElementById('mPhone').value.trim();
+  const address = document.getElementById('mAddress').value.trim();
+  const service = document.getElementById('mService').value;
+
+  if (!name || !email || !phone || !address || !service) {
+    showToast('Please fill in all required fields.');
+    return;
+  }
+
+  const btn = document.getElementById('modalSaveBtn');
+  btn.disabled    = true;
+  btn.innerHTML   = `<span class="spinner"></span>${editingId ? 'Saving…' : 'Adding…'}`;
+
+  let details;
+  if (editingId) {
+    const existing = allBookings.find(b => b.id === editingId);
+    details = { ...(existing?.details || {}), notes: document.getElementById('mNotes').value.trim() || null };
+  } else {
+    details = { notes: document.getElementById('mNotes').value.trim() || null };
+  }
+
+  const payload = {
+    name, email, phone, address, service, details,
+    status:         document.getElementById('mStatus').value,
+    date:           document.getElementById('mDate').value.trim()     || null,
+    time:           document.getElementById('mTime').value.trim()     || null,
+    price_estimate: document.getElementById('mPrice').value.trim()    || null,
+    gate_code:      document.getElementById('mGateCode').value.trim() || null,
+    referral:       document.getElementById('mReferral').value.trim() || null,
+  };
+
+  let error;
+  if (editingId) {
+    ({ error } = await adminClient.from('bookings').update(payload).eq('id', editingId));
+  } else {
+    ({ error } = await adminClient.from('bookings').insert([payload]));
+  }
+
+  btn.disabled    = false;
+  btn.textContent = editingId ? 'Save Changes' : 'Add Booking';
+
+  if (error) {
+    showToast('Save failed — check console (F12).');
+    console.error(error);
+    return;
+  }
+
+  showToast(editingId ? 'Booking updated.' : 'Booking added.');
+  closeModal();
+  loadBookings();
+}
+
+async function deleteBooking(id) {
+  const b    = allBookings.find(b => b.id === id);
+  const name = b ? b.name : 'this booking';
+  if (!confirm(`Delete the booking for ${name}? This cannot be undone.`)) return;
+
+  const { error } = await adminClient.from('bookings').delete().eq('id', id);
+
+  if (error) {
+    showToast('Delete failed — check console (F12).');
+    console.error(error);
+    return;
+  }
+
+  allBookings = allBookings.filter(b => b.id !== id);
+  updateStats();
+  renderTable();
+  showToast('Booking deleted.');
 }
 
 // ── HELPERS ──
