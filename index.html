@@ -275,6 +275,40 @@ textarea { resize: vertical; min-height: 80px; }
 .lp-rev-text { font-size: 14px; color: var(--ink2); line-height: 1.7; margin-bottom: 16px; }
 .lp-rev-author { font-size: 12px; font-weight: 600; color: var(--muted); }
 
+/* ─── PRICING ─── */
+.lp-pricing { background: var(--white); border-bottom: 1px solid var(--border); padding: 72px 40px; }
+.lp-pricing-inner { max-width: 900px; margin: 0 auto; }
+.lp-pricing-head { text-align: center; margin-bottom: 48px; }
+.lp-pricing-eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase; color: var(--green); margin-bottom: 12px; }
+.lp-pricing-h { font-family: 'Fraunces', serif; font-size: 36px; font-weight: 800; color: var(--ink); letter-spacing: -.3px; margin-bottom: 10px; }
+.lp-pricing-sub { font-size: 15px; color: var(--muted); }
+.pricing-tabs { display: flex; gap: 4px; margin-bottom: 28px; border-bottom: 2px solid var(--border); overflow-x: auto; scrollbar-width: none; }
+.pricing-tabs::-webkit-scrollbar { display: none; }
+.pricing-tab { background: none; border: none; border-bottom: 3px solid transparent; margin-bottom: -2px; padding: 10px 18px; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; font-weight: 600; color: var(--muted); cursor: pointer; transition: color .2s, border-color .2s; white-space: nowrap; flex-shrink: 0; }
+.pricing-tab:hover { color: var(--ink); }
+.pricing-tab.act { color: var(--green); border-bottom-color: var(--green); }
+.pricing-panel { display: none; }
+.pricing-panel.act { display: block; animation: up .25s ease; }
+.price-table-wrap { overflow-x: auto; border-radius: var(--radius); box-shadow: var(--shadow); }
+.price-table { width: 100%; border-collapse: collapse; background: var(--white); min-width: 480px; }
+.price-table thead tr { background: var(--green); }
+.price-table thead th { color: #fff; font-size: 12px; font-weight: 600; padding: 13px 16px; text-align: left; white-space: nowrap; }
+.price-table thead th:not(:first-child) { text-align: center; }
+.price-table tbody tr { border-bottom: 1px solid var(--border); }
+.price-table tbody tr:last-child { border-bottom: none; }
+.price-table tbody tr:nth-child(even) { background: var(--off); }
+.price-table td { padding: 13px 16px; font-size: 14px; color: var(--ink2); }
+.price-table td:first-child { font-weight: 600; color: var(--ink); }
+.price-table td.pc { font-weight: 700; color: var(--green); text-align: center; }
+.price-table td.dm { color: var(--muted); font-size: 13px; }
+.price-note { font-size: 13px; color: var(--muted); margin-top: 14px; line-height: 1.65; padding: 0 2px; }
+.price-note strong { color: var(--ink2); }
+.addon-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 10px; margin-top: 20px; }
+.addon-card { background: var(--off); border: 1px solid var(--border); border-radius: 10px; padding: 13px 18px; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.addon-name { font-size: 14px; font-weight: 500; color: var(--ink); }
+.addon-price { font-size: 14px; font-weight: 700; color: var(--green); white-space: nowrap; }
+.pricing-cta { margin-top: 36px; text-align: center; }
+
 /* ─── ABOUT ─── */
 .lp-about { background: var(--green); padding: 72px 40px; }
 .lp-about-inner { max-width: 860px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center; }
@@ -299,6 +333,9 @@ textarea { resize: vertical; min-height: 80px; }
   .lp-why-icon { flex-shrink: 0; margin-bottom: 0; }
   .lp-reviews { padding: 44px 20px; }
   .lp-rev-grid { grid-template-columns: 1fr; }
+  .lp-pricing { padding: 52px 20px; }
+  .lp-pricing-h { font-size: 26px; }
+  .addon-grid { grid-template-columns: 1fr; }
   .lp-about { padding: 52px 20px; }
   .lp-about-inner { grid-template-columns: 1fr; gap: 40px; }
   .lp-about-h { font-size: 28px; }
@@ -411,6 +448,108 @@ textarea { resize: vertical; min-height: 80px; }
       <div class="lp-stars">★★★★★</div>
       <p class="lp-rev-text">"So convenient — booked trash can cleaning in 2 minutes. They came the next morning and did a great job. My bins actually smell clean now."</p>
       <div class="lp-rev-author">— Jennifer K., Kennesaw</div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="lp-pricing" id="pricing">
+  <div class="lp-pricing-inner">
+    <div class="lp-pricing-head">
+      <div class="lp-pricing-eyebrow">Pricing</div>
+      <h2 class="lp-pricing-h">Transparent, straightforward pricing.</h2>
+      <p class="lp-pricing-sub">All prices are estimates — final quote confirmed before we start any work. No surprises.</p>
+    </div>
+
+    <div class="pricing-tabs">
+      <button class="pricing-tab act" onclick="switchTab('detail',this)">🚗 Car Detailing</button>
+      <button class="pricing-tab" onclick="switchTab('trash',this)">🗑️ Trash Cleaning</button>
+      <button class="pricing-tab" onclick="switchTab('pressure',this)">💧 Pressure Washing</button>
+      <button class="pricing-tab" onclick="switchTab('window',this)">🪟 Window Cleaning</button>
+    </div>
+
+    <!-- Car Detailing -->
+    <div class="pricing-panel act" id="ptab-detail">
+      <div class="price-table-wrap">
+        <table class="price-table">
+          <thead><tr>
+            <th>Package</th><th>Sedan / Coupe</th><th>SUV / Crossover</th><th>Pickup Truck</th><th>Minivan</th>
+          </tr></thead>
+          <tbody>
+            <tr><td>Exterior Only</td><td class="pc">$85</td><td class="pc">$100</td><td class="pc">$110</td><td class="pc">$105</td></tr>
+            <tr><td>Interior Only</td><td class="pc">$100</td><td class="pc">$120</td><td class="pc">$120</td><td class="pc">$115</td></tr>
+            <tr><td>Full Detail</td><td class="pc">$165</td><td class="pc">$195</td><td class="pc">$200</td><td class="pc">$190</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="price-note">Sports cars, luxury &amp; exotic vehicles — <strong>custom quote on request.</strong> Heavy soiling or pet hair may add <strong>$20–$40.</strong> Final price confirmed before we begin.</p>
+    </div>
+
+    <!-- Trash Cleaning -->
+    <div class="pricing-panel" id="ptab-trash">
+      <div class="price-table-wrap">
+        <table class="price-table">
+          <thead><tr>
+            <th>Frequency</th><th>1 Bin</th><th>2 Bins</th><th>3 Bins</th><th>4 Bins</th><th>5+ Bins</th>
+          </tr></thead>
+          <tbody>
+            <tr><td>One-Time</td><td class="pc">$20</td><td class="pc">$40</td><td class="pc">$60</td><td class="pc">$80</td><td class="pc">$100+</td></tr>
+            <tr><td>Quarterly</td><td class="pc">$15</td><td class="pc">$30</td><td class="pc">$45</td><td class="pc">$60</td><td class="pc">$75+</td></tr>
+            <tr><td>Monthly</td><td class="pc">$12</td><td class="pc">$24</td><td class="pc">$36</td><td class="pc">$48</td><td class="pc">$60+</td></tr>
+            <tr><td>Bi-Weekly</td><td class="pc">$10</td><td class="pc">$20</td><td class="pc">$30</td><td class="pc">$40</td><td class="pc">$50+</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="price-note">Billed per bin, per visit. <strong>Recurring customers save more</strong> — bi-weekly service is half the one-time rate. No minimum bin count.</p>
+    </div>
+
+    <!-- Pressure Washing -->
+    <div class="pricing-panel" id="ptab-pressure">
+      <div class="price-table-wrap">
+        <table class="price-table">
+          <thead><tr>
+            <th>Driveway Size</th><th>Est. Sq Ft</th><th>Starting Price</th>
+          </tr></thead>
+          <tbody>
+            <tr><td>Small — 1-car garage</td><td class="dm">~300 sq ft</td><td class="pc">$75</td></tr>
+            <tr><td>Medium — 2-car garage</td><td class="dm">~600 sq ft</td><td class="pc">$120</td></tr>
+            <tr><td>Large — 3-car garage</td><td class="dm">~1,000 sq ft</td><td class="pc">$200</td></tr>
+            <tr><td>XL — 4-car / estate</td><td class="dm">~1,500 sq ft</td><td class="pc">$300</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="price-note"><strong>$0.20 / sq ft · $75 minimum.</strong> We measure on-site and confirm your exact price before starting — no surprises, ever.</p>
+      <div style="margin-top:24px">
+        <div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:12px">Optional Add-Ons</div>
+        <div class="addon-grid">
+          <div class="addon-card"><span class="addon-name">Sidewalk / Walkway</span><span class="addon-price">+$40</span></div>
+          <div class="addon-card"><span class="addon-name">Patio / Deck</span><span class="addon-price">+$60</span></div>
+          <div class="addon-card"><span class="addon-name">Pool Deck</span><span class="addon-price">+$80</span></div>
+          <div class="addon-card"><span class="addon-name">House Exterior</span><span class="addon-price">Free quote</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Window Cleaning -->
+    <div class="pricing-panel" id="ptab-window">
+      <div class="price-table-wrap">
+        <table class="price-table">
+          <thead><tr>
+            <th>Window Count</th><th>Single Story</th><th>Two Story</th><th>Three+ Story</th>
+          </tr></thead>
+          <tbody>
+            <tr><td>1–5 windows</td><td class="pc">$45–$75</td><td class="pc">$65–$95</td><td class="pc">$90–$130</td></tr>
+            <tr><td>6–10 windows</td><td class="pc">$80–$110</td><td class="pc">$110–$150</td><td class="pc">$140–$190</td></tr>
+            <tr><td>11–20 windows</td><td class="pc">$115–$175</td><td class="pc">$160–$220</td><td class="pc">$200–$280</td></tr>
+            <tr><td>20+ windows</td><td class="pc">$200+</td><td class="pc">$270+</td><td class="pc">$340+</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="price-note">Exterior only. <strong>$125 minimum</strong> on all window jobs. Price confirmed before work begins.</p>
+    </div>
+
+    <div class="pricing-cta">
+      <a class="lp-cta" href="#book">Book Now — No Payment Today &rarr;</a>
     </div>
   </div>
 </section>
@@ -560,19 +699,19 @@ textarea { resize: vertical; min-height: 80px; }
         <div class="card-title">Package</div>
         <div class="pkg-grid">
           <div class="pkg" onclick="pickPkg(this,'Exterior Only')">
-            <div class="pkg-name">Exterior</div>
+            <div class="pkg-name">Exterior Only</div>
             <div class="pkg-price">From $85</div>
-            <div class="pkg-feat">Hand wash · Clay bar · Wax · Tire shine · Windows</div>
+            <div class="pkg-feat">Hand rinse · Windows · Tire shine · Wax</div>
           </div>
           <div class="pkg" onclick="pickPkg(this,'Interior Only')">
-            <div class="pkg-name">Interior</div>
+            <div class="pkg-name">Interior Only</div>
             <div class="pkg-price">From $100</div>
-            <div class="pkg-feat">Vacuum · Shampoo · Wipe-down · Leather condition</div>
+            <div class="pkg-feat">Vacuum · Seat clean · Wipe-down · Windows</div>
           </div>
           <div class="pkg" onclick="pickPkg(this,'Full Detail')">
             <div class="pkg-name">Full Detail</div>
             <div class="pkg-price">From $165</div>
-            <div class="pkg-feat">Complete interior + exterior — most popular</div>
+            <div class="pkg-feat">Complete exterior + interior — most popular</div>
           </div>
         </div>
         <input type="hidden" id="carPkg">
@@ -595,7 +734,8 @@ textarea { resize: vertical; min-height: 80px; }
             <select id="trashCount" onchange="updateTrashPrice()">
               <option value="">Select…</option>
               <option value="1">1 bin</option><option value="2">2 bins</option>
-              <option value="3">3 bins</option><option value="4+">4+ bins</option>
+              <option value="3">3 bins</option><option value="4+">4 bins</option>
+              <option value="5+">5+ bins</option>
             </select>
           </div>
           <div class="field">
@@ -682,7 +822,7 @@ textarea { resize: vertical; min-height: 80px; }
           </div>
           <div class="field">
             <label>Home Stories <span class="req">*</span></label>
-            <select id="winStories">
+            <select id="winStories" onchange="updateWindowPrice()">
               <option value="">Select…</option>
               <option>Single story</option><option>Two story</option><option>Three+ story</option>
             </select>
@@ -919,20 +1059,34 @@ function updateTrashPrice() {
   const rates = { 'One-Time': 20, 'Quarterly': 15, 'Monthly': 12, 'Bi-Weekly': 10 };
   const rate  = rates[freqVal];
   if (!rate) return;
-  const count    = countVal === '4+' ? 4 : parseInt(countVal);
-  const total    = rate * count;
-  const plus     = countVal === '4+' ? '+' : '';
-  const note     = freqVal === 'One-Time'
-    ? 'one-time service'
-    : freqVal.toLowerCase() + ' service — $' + rate + ' per bin per visit';
+  const countMap = { '1': 1, '2': 2, '3': 3, '4+': 4, '5+': 5 };
+  const count = countMap[countVal] || parseInt(countVal);
+  const plus  = (countVal === '4+' || countVal === '5+') ? '+' : '';
+  const total = rate * count;
+  const note  = freqVal === 'One-Time'
+    ? 'one-time service · $' + rate + ' per bin'
+    : freqVal.toLowerCase() + ' service · $' + rate + ' per bin per visit';
   showPrice('$' + total + plus, note);
 }
 
-// Window cleaning — triggered by count dropdown
+// Window cleaning — 2D matrix (count × stories)
 function updateWindowPrice() {
-  const prices = { '1-5':'$45–$75', '6-10':'$80–$110', '11-20':'$115–$175', '20+':'$200+' };
-  const val = document.getElementById('winCount').value;
-  if (val) showPrice(prices[val] || '—', 'exterior only — $9 per window, $125 minimum');
+  const count   = document.getElementById('winCount').value;
+  const stories = document.getElementById('winStories').value;
+  if (!count) { hidePrice(); return; }
+  const matrix = {
+    '1-5':  { 'Single story': '$45–$75',   'Two story': '$65–$95',   'Three+ story': '$90–$130' },
+    '6-10': { 'Single story': '$80–$110',  'Two story': '$110–$150', 'Three+ story': '$140–$190' },
+    '11-20':{ 'Single story': '$115–$175', 'Two story': '$160–$220', 'Three+ story': '$200–$280' },
+    '20+':  { 'Single story': '$200+',     'Two story': '$270+',     'Three+ story': '$340+' },
+  };
+  const row = matrix[count];
+  if (!row) { hidePrice(); return; }
+  if (stories && row[stories]) {
+    showPrice(row[stories], 'exterior only · $125 minimum · confirmed before service');
+  } else {
+    showPrice(row['Single story'], 'select home stories for exact range · $125 minimum');
+  }
 }
 
 // ─────────────────────────────────────────────
@@ -1307,6 +1461,16 @@ async function submitBooking() {
     btn.disabled = false;
     btn.innerHTML = 'Book My Service ✓';
   }
+}
+
+// ─────────────────────────────────────────────
+// PRICING TABS
+// ─────────────────────────────────────────────
+function switchTab(id, btn) {
+  document.querySelectorAll('.pricing-tab').forEach(t => t.classList.remove('act'));
+  document.querySelectorAll('.pricing-panel').forEach(p => p.classList.remove('act'));
+  btn.classList.add('act');
+  document.getElementById('ptab-' + id).classList.add('act');
 }
 
 // ─────────────────────────────────────────────
