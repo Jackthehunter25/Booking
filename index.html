@@ -216,6 +216,14 @@ textarea { resize: vertical; min-height: 80px; }
 /* ─── SERVICE SECTION LABELS ─── */
 .svc-section-label { display: none; font-family: 'Fraunces', serif; font-size: 17px; font-weight: 700; color: var(--ink); margin: 20px 0 14px; padding: 14px 18px; background: var(--green-l); border: 1.5px solid var(--green-m); border-radius: 10px; }
 
+/* ─── QUOTE WIDE CARD ─── */
+.svc-wide { grid-column: span 2; }
+
+/* ─── FORM HELPERS ─── */
+.step-reassure { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px; padding: 12px 18px; font-size: 14px; color: #166534; font-weight: 500; margin-bottom: 24px; text-align: center; }
+.field-helper { font-size: 12px; color: var(--muted); margin-top: 5px; line-height: 1.5; }
+.quote-info { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px; padding: 14px 16px; font-size: 14px; color: #166534; line-height: 1.65; margin-top: 4px; }
+
 /* ─── SUCCESS ─── */
 .success-wrap { text-align: center; padding: 12px 0 20px; }
 .success-icon { width: 60px; height: 60px; border-radius: 50%; background: var(--green-l); border: 2px solid var(--green-m); display: flex; align-items: center; justify-content: center; font-size: 24px; margin: 0 auto 18px; }
@@ -301,6 +309,7 @@ textarea { resize: vertical; min-height: 80px; }
   .trust-bar { padding: 9px 16px; gap: 14px; }
   .p-label { display: none; }
   .svc-grid { grid-template-columns: 1fr; }
+  .svc-wide { grid-column: auto; }
   .pkg-grid { grid-template-columns: 1fr 1fr; }
   .time-grid { grid-template-columns: repeat(3,1fr); }
   .row, .row3 { grid-template-columns: 1fr; }
@@ -411,28 +420,28 @@ textarea { resize: vertical; min-height: 80px; }
   <div class="lp-about-inner">
     <div>
       <div class="lp-about-tag">About Us</div>
-      <h2 class="lp-about-h">Built by students.<br>Run like pros.</h2>
+      <h2 class="lp-about-h">Built on Standards.<br>Backed by Results.</h2>
       <div class="lp-about-body">
         <p>Kennesaw Standard Exterior Co. was founded by college students who wanted to build something real. What started as a way to earn while in school turned into a full-service exterior cleaning company built on one simple idea — do the job right, every single time.</p>
-        <p>We're not a franchise. We're local, we're hungry, and we take pride in every job we show up to. From car details to pressure washing, we treat your property like it's our own.</p>
+        <p>We're not a franchise. We're local, we're hungry, and we take pride in every job we show up to.</p>
       </div>
     </div>
     <div class="lp-about-stats">
       <div class="lp-stat">
-        <div class="lp-stat-num">100%</div>
+        <div class="lp-stat-num">📍</div>
+        <div class="lp-stat-label">Locally owned in Kennesaw, GA</div>
+      </div>
+      <div class="lp-stat">
+        <div class="lp-stat-num">🎓</div>
+        <div class="lp-stat-label">Founded by college students</div>
+      </div>
+      <div class="lp-stat">
+        <div class="lp-stat-num">⚡</div>
+        <div class="lp-stat-label">Response within 15 minutes</div>
+      </div>
+      <div class="lp-stat">
+        <div class="lp-stat-num">✅</div>
         <div class="lp-stat-label">Satisfaction guaranteed on every job</div>
-      </div>
-      <div class="lp-stat">
-        <div class="lp-stat-num">4</div>
-        <div class="lp-stat-label">Services, one booking, one team</div>
-      </div>
-      <div class="lp-stat">
-        <div class="lp-stat-num">30m</div>
-        <div class="lp-stat-label">Response time during business hours</div>
-      </div>
-      <div class="lp-stat">
-        <div class="lp-stat-num">Local</div>
-        <div class="lp-stat-label">Kennesaw born, neighbor focused</div>
       </div>
     </div>
   </div>
@@ -486,6 +495,12 @@ textarea { resize: vertical; min-height: 80px; }
         <span class="svc-icon">🪟</span>
         <div class="svc-name">Window Cleaning</div>
         <div class="svc-desc">Streak-free interior, exterior, or both. Screens available.</div>
+      </div>
+      <div class="svc svc-wide" data-svc="quote" onclick="pickSvc(this)">
+        <div class="svc-check">✓</div>
+        <span class="svc-icon">💬</span>
+        <div class="svc-name">Not sure what I need — just contact me</div>
+        <div class="svc-desc">Tell us a little about your property and what you're looking for. We'll reach out, answer your questions, and get you a free quote.</div>
       </div>
     </div>
 
@@ -592,15 +607,6 @@ textarea { resize: vertical; min-height: 80px; }
             </select>
           </div>
         </div>
-        <div class="field">
-          <label>Bin Size</label>
-          <div class="chips">
-            <div class="chip" onclick="solo(this,'trashSize')">32 gal</div>
-            <div class="chip" onclick="solo(this,'trashSize')">64 gal</div>
-            <div class="chip" onclick="solo(this,'trashSize')">96 gal</div>
-          </div>
-          <input type="hidden" id="trashSize">
-        </div>
       </div>
       <div class="card">
         <div class="card-title">Frequency</div>
@@ -623,26 +629,15 @@ textarea { resize: vertical; min-height: 80px; }
       <div class="svc-section-label" id="fh-pressure">💧 Pressure Washing</div>
       <div class="card">
         <div class="card-title">Driveway Details</div>
-        <div class="row">
-          <div class="field">
-            <label>Surface Type <span class="req">*</span></label>
-            <select id="driveType">
-              <option value="">Select…</option>
-              <option>Concrete</option><option>Asphalt</option>
-              <option>Brick / Pavers</option><option>Exposed Aggregate</option><option>Stamped Concrete</option>
-            </select>
-          </div>
-          <div class="field">
-            <label>Approx. Area <span class="req">*</span></label>
-            <select id="driveSqft" onchange="updatePressurePrice()">
-              <option value="">Select…</option>
-              <option value="u500">Under 500 sq ft</option>
-              <option value="500-1000">500–1,000 sq ft</option>
-              <option value="1000-2000">1,000–2,000 sq ft</option>
-              <option value="2000+">2,000+ sq ft</option>
-            </select>
-          </div>
+        <div class="field">
+          <label>Surface Type <span class="req">*</span></label>
+          <select id="driveType">
+            <option value="">Select…</option>
+            <option>Concrete</option><option>Asphalt</option>
+            <option>Brick / Pavers</option><option>Exposed Aggregate</option><option>Stamped Concrete</option>
+          </select>
         </div>
+        <div class="quote-info">📍 <strong>Free on-site quote included</strong> — we'll measure your driveway and confirm your exact price before we start. No surprises.</div>
         <div class="field">
           <label>Staining Level</label>
           <div class="chips">
@@ -709,6 +704,19 @@ textarea { resize: vertical; min-height: 80px; }
       </div>
     </div>
 
+    <!-- ── FREE QUOTE ── -->
+    <div id="f-quote" style="display:none">
+      <div class="svc-section-label" id="fh-quote">💬 Free Quote Request</div>
+      <div class="card">
+        <div class="card-title">What are you looking for?</div>
+        <div class="field">
+          <label>Tell us about your property <span class="req">*</span></label>
+          <textarea id="quoteNotes" placeholder="e.g. I have a 2-car driveway and some staining, and I'm also wondering about trash can cleaning. Not sure what I need!" style="min-height:120px"></textarea>
+          <div class="field-helper">No pressure — we'll reach out, answer your questions, and send a free quote with no obligation.</div>
+        </div>
+      </div>
+    </div>
+
     <div class="btns">
       <button class="btn btn-s" onclick="goTo(1)">&larr; Back</button>
       <button class="btn btn-p" onclick="goTo(3)">Continue &rarr;</button>
@@ -719,27 +727,29 @@ textarea { resize: vertical; min-height: 80px; }
   <div class="step" id="s3">
     <div class="eyebrow">Schedule</div>
     <div class="step-h">Contact &amp; Availability</div>
-    <div class="step-sub">We'll text you within 30 minutes to confirm your appointment.</div>
+    <div class="step-sub">We'll reach out within 30 minutes to confirm your appointment.</div>
+
+    <div class="step-reassure">Almost done! This takes less than a minute.</div>
 
     <div class="card">
       <div class="card-title">Your Information</div>
       <div class="row">
-        <div class="field" id="ef-fn"><label>First Name <span class="req">*</span></label><input id="fname" type="text" placeholder="Jackson"><div class="err-msg">Required</div></div>
-        <div class="field" id="ef-ln"><label>Last Name <span class="req">*</span></label><input id="lname" type="text" placeholder="Smith"><div class="err-msg">Required</div></div>
+        <div class="field" id="ef-fn"><label>First Name <span class="req">*</span></label><input id="fname" type="text" placeholder="Your first name"><div class="err-msg">Please enter your first name</div></div>
+        <div class="field" id="ef-ln"><label>Last Name <span class="req">*</span></label><input id="lname" type="text" placeholder="Your last name"><div class="err-msg">Please enter your last name</div></div>
       </div>
       <div class="row">
-        <div class="field" id="ef-em"><label>Email <span class="req">*</span></label><input id="email" type="email" placeholder="you@email.com"><div class="err-msg">Enter a valid email</div></div>
-        <div class="field" id="ef-ph"><label>Phone <span class="req">*</span></label><input id="phone" type="tel" placeholder="(555) 000-0000"><div class="err-msg">Required</div></div>
+        <div class="field" id="ef-em"><label>Email <span class="req">*</span></label><input id="email" type="email" placeholder="you@email.com"><div class="err-msg">Please enter a valid email address</div></div>
+        <div class="field" id="ef-ph"><label>Phone <span class="req">*</span></label><input id="phone" type="tel" placeholder="(555) 000-0000"><div class="err-msg">Please enter your 10-digit phone number</div></div>
       </div>
     </div>
 
     <div class="card">
       <div class="card-title">Service Address</div>
-      <div class="field" id="ef-addr"><label>Street Address <span class="req">*</span></label><input id="addr" type="text" placeholder="123 Main Street"><div class="err-msg">Required</div></div>
+      <div class="field" id="ef-addr"><label>Street Address <span class="req">*</span></label><input id="addr" type="text" placeholder="123 Main Street"><div class="err-msg">Please enter your street address</div></div>
       <div class="row3">
-        <div class="field" id="ef-city"><label>City <span class="req">*</span></label><input id="city" type="text" placeholder="Kennesaw"><div class="err-msg">Required</div></div>
+        <div class="field" id="ef-city"><label>City <span class="req">*</span></label><input id="city" type="text" placeholder="Kennesaw"><div class="err-msg">Please enter your city</div></div>
         <div class="field"><label>State</label><input id="state" type="text" placeholder="GA" maxlength="2"></div>
-        <div class="field" id="ef-zip"><label>ZIP <span class="req">*</span></label><input id="zip" type="text" placeholder="30144" maxlength="5"><div class="err-msg">Required</div></div>
+        <div class="field" id="ef-zip"><label>ZIP <span class="req">*</span></label><input id="zip" type="text" placeholder="30144" maxlength="5"><div class="err-msg">Please enter a valid 5-digit ZIP code</div></div>
       </div>
       <div class="field"><label>Gate / Access Code</label><input id="gate" type="text" placeholder="Leave blank if not needed"></div>
     </div>
@@ -749,12 +759,14 @@ textarea { resize: vertical; min-height: 80px; }
       <div class="field" id="ef-date">
         <label>Date <span class="req">*</span></label>
         <input id="bdate" type="date">
+        <div class="field-helper">Pick your preferred date — we'll confirm availability within 15 minutes</div>
         <div class="err-msg">Please select a date</div>
       </div>
     </div>
 
     <div class="card">
       <div class="card-title">Preferred Arrival Window</div>
+      <div class="field-helper" style="margin-bottom:12px">Choose a window that works for you — we'll confirm the exact time when we reach out</div>
       <div class="time-grid">
         <div class="slot" onclick="pickTime(this)">8–9 AM</div>
         <div class="slot" onclick="pickTime(this)">9–10 AM</div>
@@ -792,11 +804,11 @@ textarea { resize: vertical; min-height: 80px; }
   <div class="step" id="s4">
     <div class="eyebrow">Almost Done</div>
     <div class="step-h">Review your booking</div>
-    <div class="step-sub">Everything look right? Hit confirm and we'll be in touch within 30 minutes.</div>
+    <div class="step-sub">Everything look right? Hit the button below and we'll be in touch within 30 minutes.</div>
     <div class="card"><div id="reviewRows"></div></div>
     <div class="btns">
       <button class="btn btn-s" onclick="goTo(3)">&larr; Edit</button>
-      <button class="btn btn-p" id="submitBtn" onclick="submitBooking()">Confirm Booking ✓</button>
+      <button class="btn btn-p" id="submitBtn" onclick="submitBooking()">Book My Service ✓</button>
     </div>
   </div>
 
@@ -809,6 +821,9 @@ textarea { resize: vertical; min-height: 80px; }
         <div class="success-sub">
           We'll text <strong id="successPhone"></strong> within 30 minutes to confirm.<br>
           Questions? Call us at <a href="tel:+14049135941" style="color:var(--green);font-weight:600;">(404) 913-5941</a>
+        </div>
+        <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:14px 18px;margin:20px 0;font-size:14px;color:#166534;text-align:left;line-height:1.6">
+          <strong>No payment needed today</strong> — we'll confirm your appointment and send you all the details.
         </div>
         <div id="successRows"></div>
         <div class="booking-id">Booking ID: <span id="bid"></span></div>
@@ -850,7 +865,8 @@ const SVC_LABELS = {
   detail:   '🚗 Car Detailing',
   trash:    '🗑️ Trash Can Cleaning',
   pressure: '💧 Driveway Pressure Washing',
-  window:   '🪟 Window Cleaning'
+  window:   '🪟 Window Cleaning',
+  quote:    '💬 Free Quote Request',
 };
 
 // ─────────────────────────────────────────────
@@ -915,13 +931,6 @@ function updateTrashPrice() {
   showPrice('$' + total + plus, note);
 }
 
-// Pressure washing — triggered by area dropdown
-function updatePressurePrice() {
-  const prices = { 'u500':'$80–$120', '500-1000':'$120–$180', '1000-2000':'$180–$260', '2000+':'$260–$350+' };
-  const val = document.getElementById('driveSqft').value;
-  if (val) showPrice(prices[val] || '—');
-}
-
 // Window cleaning — triggered by count dropdown
 function updateWindowPrice() {
   const prices = { '1-5':'$45–$75', '6-10':'$80–$110', '11-20':'$115–$175', '20+':'$200+' };
@@ -938,6 +947,13 @@ function pickSvc(el) {
     selSvcs = selSvcs.filter(s => s !== svc);
     el.classList.remove('sel');
   } else {
+    if (svc === 'quote') {
+      selSvcs = [];
+      document.querySelectorAll('.svc').forEach(s => s.classList.remove('sel'));
+    } else if (selSvcs.includes('quote')) {
+      selSvcs = selSvcs.filter(s => s !== 'quote');
+      document.querySelector('[data-svc="quote"]').classList.remove('sel');
+    }
     selSvcs.push(svc);
     el.classList.add('sel');
   }
@@ -1020,7 +1036,7 @@ function showSvcForm(reset = false) {
     hidePrice();
   }
   const multi = selSvcs.length > 1;
-  ['detail', 'trash', 'pressure', 'window'].forEach(id => {
+  ['detail', 'trash', 'pressure', 'window', 'quote'].forEach(id => {
     const visible = selSvcs.includes(id);
     document.getElementById('f-' + id).style.display  = visible ? 'block' : 'none';
     document.getElementById('fh-' + id).style.display = visible && multi ? 'block' : 'none';
@@ -1030,8 +1046,8 @@ function showSvcForm(reset = false) {
     document.getElementById('s2head').innerHTML  = 'Fill in details for each service';
   } else {
     const svc   = selSvcs[0];
-    const eyes  = { detail: 'Car Detailing', trash: 'Trash Can Cleaning', pressure: 'Pressure Washing', window: 'Window Cleaning' };
-    const heads = { detail: 'Vehicle &amp; package info', trash: 'Tell us about your bins', pressure: 'Driveway details', window: 'Window details' };
+    const eyes  = { detail: 'Car Detailing', trash: 'Trash Can Cleaning', pressure: 'Pressure Washing', window: 'Window Cleaning', quote: 'Free Quote' };
+    const heads = { detail: 'Vehicle &amp; package info', trash: 'Tell us about your bins', pressure: 'Driveway details', window: 'Window details', quote: 'What are you looking for?' };
     document.getElementById('s2eye').textContent = eyes[svc]  || 'Details';
     document.getElementById('s2head').innerHTML  = heads[svc] || 'Service details';
   }
@@ -1054,14 +1070,19 @@ function validateStep2() {
       if (missing) { showToast('Trash Can Cleaning: please select bin count, type, and frequency.'); return false; }
     }
     if (svc === 'pressure') {
-      const missing = !document.getElementById('driveType').value ||
-                      !document.getElementById('driveSqft').value;
-      if (missing) { showToast('Pressure Washing: please select surface type and area.'); return false; }
+      if (!document.getElementById('driveType').value) {
+        showToast('Pressure Washing: please select your surface type.'); return false;
+      }
     }
     if (svc === 'window') {
       const missing = !document.getElementById('winCount').value ||
                       !document.getElementById('winStories').value;
       if (missing) { showToast('Window Cleaning: please select number of windows and home stories.'); return false; }
+    }
+    if (svc === 'quote') {
+      if (!document.getElementById('quoteNotes').value.trim()) {
+        showToast('Please tell us a bit about what you\'re looking for.'); return false;
+      }
     }
   }
   return true;
@@ -1113,16 +1134,17 @@ function svcDetails() {
   if (selSvcs.includes('trash')) result.trash = {
     count:     document.getElementById('trashCount').value || '',
     binTypes:  document.getElementById('trashType').value  || '',
-    size:      document.getElementById('trashSize').value  || '',
     frequency: document.getElementById('trashFreq').value  || '',
     notes:     document.getElementById('trashNotes').value || '',
   };
   if (selSvcs.includes('pressure')) result.pressure = {
     surface:   document.getElementById('driveType').value    || '',
-    area:      document.getElementById('driveSqft').value    || '',
     staining:  document.getElementById('driveStain').value   || '',
     extras:    [...addons],
     notes:     document.getElementById('pressureNotes').value || '',
+  };
+  if (selSvcs.includes('quote')) result.quote = {
+    notes: document.getElementById('quoteNotes').value || '',
   };
   if (selSvcs.includes('window')) result.window = {
     count:   document.getElementById('winCount').value   || '',
@@ -1158,8 +1180,11 @@ function reviewRows() {
     }
     if (svc === 'pressure') {
       if (d.surface)              rows.push({ k: 'Surface',    v: d.surface });
-      if (d.area)                 rows.push({ k: 'Area',       v: d.area });
+      if (d.staining)             rows.push({ k: 'Staining',   v: d.staining });
       if (d.extras && d.extras.length) rows.push({ k: 'Also clean', v: d.extras.join(', ') });
+    }
+    if (svc === 'quote') {
+      if (d.notes) rows.push({ k: 'Looking for', v: d.notes });
     }
     if (svc === 'window') {
       if (d.count)   rows.push({ k: 'Windows', v: d.count });
@@ -1200,7 +1225,7 @@ async function submitBooking() {
   if (!supabaseClient) {
     showToast('Connection error. Please refresh the page and try again.');
     btn.disabled = false;
-    btn.innerHTML = 'Confirm Booking ✓';
+    btn.innerHTML = 'Book My Service ✓';
     return;
   }
 
@@ -1211,7 +1236,7 @@ async function submitBooking() {
     ? new Date(dateVal + 'T12:00').toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
     : '';
 
-  const svcNames = { detail: 'Car Detailing', trash: 'Trash Can Cleaning', pressure: 'Pressure Washing', window: 'Window Cleaning' };
+  const svcNames = { detail: 'Car Detailing', trash: 'Trash Can Cleaning', pressure: 'Pressure Washing', window: 'Window Cleaning', quote: 'Free Quote Request' };
   const payload = {
     id:       bookingUuid,
     service:  selSvcs.map(s => svcNames[s]).join(' + '),
@@ -1272,7 +1297,7 @@ async function submitBooking() {
     console.error('Booking submission error:', err);
     showToast('Something went wrong. Please try again or call us at (404) 913-5941.');
     btn.disabled = false;
-    btn.innerHTML = 'Confirm Booking ✓';
+    btn.innerHTML = 'Book My Service ✓';
   }
 }
 
