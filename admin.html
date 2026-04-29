@@ -226,6 +226,13 @@ td { padding: 13px 16px; font-size: 13px; vertical-align: middle; }
 .act-edit:hover   { background: var(--ink2); border-color: var(--ink2); color: #fff; }
 .act-delete:hover { background: var(--danger); border-color: var(--danger); color: #fff; }
 
+/* ── SERVICE CHECKBOXES ── */
+.svc-checks { display: flex; flex-direction: column; gap: 8px; }
+.svc-check  { display: flex; align-items: center; gap: 9px; cursor: pointer; font-size: 13px; font-weight: 500; color: var(--ink); }
+.svc-check input[type="checkbox"] {
+  width: 16px; height: 16px; accent-color: var(--green); cursor: pointer; flex-shrink: 0;
+}
+
 /* ── ADD BOOKING BTN ── */
 .btn-add {
   background: var(--green); border: none; border-radius: 8px; color: #fff;
@@ -364,15 +371,14 @@ td { padding: 13px 16px; font-size: 13px; vertical-align: middle; }
 
         <div class="modal-section">Appointment</div>
         <div class="field">
-          <label>Service *</label>
-          <select id="mService">
-            <option value="">Select service…</option>
-            <option value="detail">Car Detailing</option>
-            <option value="trash">Trash Can Cleaning</option>
-            <option value="pressure">Driveway Pressure Washing</option>
-            <option value="window">Window Cleaning</option>
-            <option value="quote">Free Quote</option>
-          </select>
+          <label>Services *</label>
+          <div class="svc-checks">
+            <label class="svc-check"><input type="checkbox" name="mService" value="detail"> Car Detailing</label>
+            <label class="svc-check"><input type="checkbox" name="mService" value="trash"> Trash Can Cleaning</label>
+            <label class="svc-check"><input type="checkbox" name="mService" value="pressure"> Driveway Pressure Washing</label>
+            <label class="svc-check"><input type="checkbox" name="mService" value="window"> Window Cleaning</label>
+            <label class="svc-check"><input type="checkbox" name="mService" value="quote"> Free Quote</label>
+          </div>
         </div>
         <div class="field">
           <label>Status</label>
@@ -545,7 +551,7 @@ function renderTable() {
           <div class="td-primary">${esc(b.name || '—')}</div>
           <div class="td-secondary">${esc(b.phone || '')}</div>
         </td>
-        <td>${esc(SVC[b.service] || b.service || '—')}</td>
+        <td>${esc(svcLabel(b.service))}</td>
         <td class="hide-sm">
           <div>${esc(b.date || '—')}</div>
           <div class="td-secondary">${esc(b.time || '')}</div>
@@ -558,6 +564,10 @@ function renderTable() {
         <td colspan="7" class="detail-cell">${detailGrid(b)}</td>
       </tr>`;
   }).join('');
+}
+
+function svcLabel(s) {
+  return (s || '').split(',').map(k => SVC[k.trim()] || k.trim()).filter(Boolean).join(', ') || '—';
 }
 
 function badge(status) {
@@ -657,7 +667,7 @@ function openAddModal() {
   ['mName','mEmail','mPhone','mAddress','mDate','mTime','mPrice','mGateCode','mReferral','mNotes'].forEach(id => {
     document.getElementById(id).value = '';
   });
-  document.getElementById('mService').value = '';
+  document.querySelectorAll('input[name="mService"]').forEach(c => c.checked = false);
   document.getElementById('mStatus').value  = 'pending';
   document.getElementById('bookingModal').style.display = 'flex';
   setTimeout(() => document.getElementById('mName').focus(), 50);
@@ -674,7 +684,8 @@ function openEditModal(id) {
   document.getElementById('mEmail').value    = b.email   || '';
   document.getElementById('mPhone').value    = b.phone   || '';
   document.getElementById('mAddress').value  = b.address || '';
-  document.getElementById('mService').value  = b.service || '';
+  const svcs = (b.service || '').split(',').map(s => s.trim());
+  document.querySelectorAll('input[name="mService"]').forEach(c => c.checked = svcs.includes(c.value));
   document.getElementById('mStatus').value   = b.status  || 'pending';
   document.getElementById('mDate').value     = b.date    || '';
   document.getElementById('mTime').value     = b.time    || '';
@@ -700,7 +711,7 @@ async function saveBooking() {
   const email   = document.getElementById('mEmail').value.trim();
   const phone   = document.getElementById('mPhone').value.trim();
   const address = document.getElementById('mAddress').value.trim();
-  const service = document.getElementById('mService').value;
+  const service = Array.from(document.querySelectorAll('input[name="mService"]:checked')).map(c => c.value).join(',');
 
   if (!name || !email || !phone || !address || !service) {
     showToast('Please fill in all required fields.');
