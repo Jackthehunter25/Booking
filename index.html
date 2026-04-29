@@ -777,7 +777,6 @@ textarea { resize: vertical; min-height: 80px; }
         <div class="slot" onclick="pickTime(this)">4–5 PM</div>
         <div class="slot off">5–6 PM</div>
         <div class="slot off">6–7 PM</div>
-        <div class="slot off">Unavailable</div>
       </div>
       <input type="hidden" id="btime">
     </div>
@@ -1031,6 +1030,11 @@ function showSvcForm(reset = false) {
   if (reset) {
     addons = [];
     document.querySelectorAll('[onclick*="addOn"]').forEach(c => c.classList.remove('on'));
+    document.querySelectorAll('[onclick*="solo"]').forEach(c => c.classList.remove('on'));
+    document.querySelectorAll('.pkg').forEach(p => p.classList.remove('on'));
+    document.getElementById('carPkg').value   = '';
+    document.getElementById('trashFreq').value = '';
+    document.getElementById('driveStain').value = '';
     hidePrice();
   }
   const multi = selSvcs.length > 1;
@@ -1054,12 +1058,14 @@ function showSvcForm(reset = false) {
 function validateStep2() {
   for (const svc of selSvcs) {
     if (svc === 'detail') {
-      const missing = !document.getElementById('carYear').value ||
+      const yr = parseInt(document.getElementById('carYear').value);
+      const validYear = yr >= 1990 && yr <= new Date().getFullYear() + 1;
+      const missing = !yr || !validYear ||
                       !document.getElementById('carMake').value.trim() ||
                       !document.getElementById('carModel').value.trim() ||
                       !document.getElementById('carType').value ||
                       !document.getElementById('carPkg').value;
-      if (missing) { showToast('Car Detailing: please fill in vehicle info and select a package.'); return false; }
+      if (missing) { showToast('Car Detailing: please fill in vehicle info (year 1990–present) and select a package.'); return false; }
     }
     if (svc === 'trash') {
       const missing = !document.getElementById('trashCount').value ||
@@ -1112,7 +1118,11 @@ function validateStep3() {
     showToast('Please select a preferred arrival window.');
     ok = false;
   }
-  if (!ok) document.getElementById('book').scrollIntoView({ behavior: 'smooth' });
+  if (!ok) {
+    const firstErr = document.querySelector('#s3 .field.err');
+    if (firstErr) firstErr.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    else document.getElementById('book').scrollIntoView({ behavior: 'smooth' });
+  }
   return ok;
 }
 
