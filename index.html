@@ -576,7 +576,7 @@ textarea { resize: vertical; min-height: 80px; }
       </div>
       <div class="lp-stat">
         <div class="lp-stat-num">⚡</div>
-        <div class="lp-stat-label">Response within 15 minutes</div>
+        <div class="lp-stat-label">Response within 30 minutes</div>
       </div>
       <div class="lp-stat">
         <div class="lp-stat-num">✅</div>
@@ -633,7 +633,7 @@ textarea { resize: vertical; min-height: 80px; }
         <div class="svc-check">✓</div>
         <span class="svc-icon">🪟</span>
         <div class="svc-name">Window Cleaning</div>
-        <div class="svc-desc">Streak-free interior, exterior, or both. Screens available.</div>
+        <div class="svc-desc">Streak-free exterior window cleaning. Great results, no mess.</div>
       </div>
       <div class="svc svc-wide" data-svc="quote" onclick="pickSvc(this)">
         <div class="svc-check">✓</div>
@@ -734,7 +734,7 @@ textarea { resize: vertical; min-height: 80px; }
             <select id="trashCount" onchange="updateTrashPrice()">
               <option value="">Select…</option>
               <option value="1">1 bin</option><option value="2">2 bins</option>
-              <option value="3">3 bins</option><option value="4+">4 bins</option>
+              <option value="3">3 bins</option><option value="4+">4+ bins</option>
               <option value="5+">5+ bins</option>
             </select>
           </div>
@@ -828,13 +828,8 @@ textarea { resize: vertical; min-height: 80px; }
             </select>
           </div>
         </div>
-        <div class="field">
-          <label>Scope</label>
-          <div class="chips">
-            <div class="chip on">Exterior Only</div>
-          </div>
-          <input type="hidden" id="winScope" value="Exterior Only">
-        </div>
+        <div class="field-helper" style="margin-top:4px">Exterior cleaning only. Price confirmed before we start.</div>
+        <input type="hidden" id="winScope" value="Exterior Only">
       </div>
       <div class="card">
         <div class="card-title">Access Notes</div>
@@ -904,7 +899,7 @@ textarea { resize: vertical; min-height: 80px; }
 
     <div class="card">
       <div class="card-title">Preferred Arrival Window</div>
-      <div class="field-helper" style="margin-bottom:12px">Choose a window that works for you — we'll confirm the exact time when we reach out</div>
+      <div class="field-helper" style="margin-bottom:12px">We're available 8 AM – 5 PM. Choose a window that works for you — we'll confirm the exact time when we reach out.</div>
       <div class="time-grid">
         <div class="slot" onclick="pickTime(this)">8–9 AM</div>
         <div class="slot" onclick="pickTime(this)">9–10 AM</div>
@@ -915,14 +910,12 @@ textarea { resize: vertical; min-height: 80px; }
         <div class="slot" onclick="pickTime(this)">2–3 PM</div>
         <div class="slot" onclick="pickTime(this)">3–4 PM</div>
         <div class="slot" onclick="pickTime(this)">4–5 PM</div>
-        <div class="slot off">5–6 PM</div>
-        <div class="slot off">6–7 PM</div>
       </div>
       <input type="hidden" id="btime">
     </div>
 
     <div class="card">
-      <div class="card-title">How did you hear about us?</div>
+      <div class="card-title">How did you hear about us? <span style="font-size:11px;font-weight:400;color:var(--muted);text-transform:none;letter-spacing:0">(optional)</span></div>
       <select id="referral">
         <option value="">Select…</option>
         <option>Google Search</option><option>Instagram / Facebook</option>
