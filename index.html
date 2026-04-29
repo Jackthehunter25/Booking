@@ -987,10 +987,11 @@ try {
 // ─────────────────────────────────────────────
 // STATE
 // ─────────────────────────────────────────────
-let curStep  = 1;
-let selSvcs  = [];
-let selTime  = null;
-let addons   = [];
+let curStep       = 1;
+let selSvcs       = [];
+let selTime       = null;
+let addons        = [];
+let priceEstimates = {};
 
 // Min date = tomorrow
 const td = new Date(); td.setDate(td.getDate() + 1);
@@ -1029,6 +1030,29 @@ function showPrice(range, note) {
 }
 function hidePrice() { document.getElementById('priceBadge').classList.remove('show'); }
 
+// Combines all per-service estimates into one badge display
+function updateCombinedPrice() {
+  const entries = Object.values(priceEstimates);
+  if (entries.length === 0) { hidePrice(); return; }
+  if (entries.some(e => e.isCustom)) {
+    showPrice('Custom quote', 'one or more services require a custom quote');
+    return;
+  }
+  let lo = 0, hi = 0, hasPlus = false;
+  entries.forEach(e => {
+    lo += e.low;
+    hi += e.isPlus ? e.low : e.high;
+    if (e.isPlus) hasPlus = true;
+  });
+  const range = lo === hi
+    ? '$' + lo + (hasPlus ? '+' : '')
+    : '$' + lo + '–$' + hi + (hasPlus ? '+' : '');
+  const note = entries.length > 1
+    ? 'combined estimate · final quote confirmed before service'
+    : entries[0].note || 'estimated range · final quote confirmed before service';
+  showPrice(range, note);
+}
+
 // Car detail — triggered by package or vehicle type selection
 function pickPkg(el, name) {
   document.querySelectorAll('.pkg').forEach(p => p.classList.remove('on'));
@@ -1040,53 +1064,60 @@ function pickPkg(el, name) {
 function updateDetailPrice() {
   const pkg  = document.getElementById('carPkg').value;
   const type = document.getElementById('carType').value;
-  if (!pkg || !type) { hidePrice(); return; }
+  if (!pkg || !type) { delete priceEstimates['detail']; updateCombinedPrice(); return; }
   const matrix = {
     'Exterior Only': { 'Sedan / Coupe': 85,  'SUV / Crossover': 100, 'Pickup Truck': 110, 'Minivan': 105 },
     'Interior Only': { 'Sedan / Coupe': 100, 'SUV / Crossover': 120, 'Pickup Truck': 120, 'Minivan': 115 },
     'Full Detail':   { 'Sedan / Coupe': 165, 'SUV / Crossover': 195, 'Pickup Truck': 200, 'Minivan': 190 },
   };
   const price = matrix[pkg]?.[type];
-  if (price) showPrice('$' + price, 'flat rate — final quote confirmed before service');
-  else showPrice('Custom quote', 'call us for pricing on this vehicle type');
+  if (price) priceEstimates['detail'] = { low: price, high: price, isPlus: false, note: 'flat rate — final quote confirmed before service' };
+  else priceEstimates['detail'] = { isCustom: true };
+  updateCombinedPrice();
 }
 
 // Trash — triggered by bin count or frequency selection
 function updateTrashPrice() {
   const countVal = document.getElementById('trashCount').value;
   const freqVal  = document.getElementById('trashFreq').value;
-  if (!countVal || !freqVal) { hidePrice(); return; }
+  if (!countVal || !freqVal) { delete priceEstimates['trash']; updateCombinedPrice(); return; }
   const rates = { 'One-Time': 20, 'Quarterly': 15, 'Monthly': 12, 'Bi-Weekly': 10 };
   const rate  = rates[freqVal];
   if (!rate) return;
   const countMap = { '1': 1, '2': 2, '3': 3, '4+': 4, '5+': 5 };
   const count = countMap[countVal] || parseInt(countVal);
-  const plus  = (countVal === '4+' || countVal === '5+') ? '+' : '';
+  const isPlus = (countVal === '4+' || countVal === '5+');
   const total = rate * count;
   const note  = freqVal === 'One-Time'
     ? 'one-time service · $' + rate + ' per bin'
     : freqVal.toLowerCase() + ' service · $' + rate + ' per bin per visit';
-  showPrice('$' + total + plus, note);
+  priceEstimates['trash'] = { low: total, high: total, isPlus, note };
+  updateCombinedPrice();
 }
 
 // Window cleaning — 2D matrix (count × stories)
 function updateWindowPrice() {
   const count   = document.getElementById('winCount').value;
   const stories = document.getElementById('winStories').value;
-  if (!count) { hidePrice(); return; }
+  if (!count) { delete priceEstimates['window']; updateCombinedPrice(); return; }
   const matrix = {
-    '1-5':  { 'Single story': '$45–$75',   'Two story': '$65–$95',   'Three+ story': '$90–$130' },
-    '6-10': { 'Single story': '$80–$110',  'Two story': '$110–$150', 'Three+ story': '$140–$190' },
-    '11-20':{ 'Single story': '$115–$175', 'Two story': '$160–$220', 'Three+ story': '$200–$280' },
-    '20+':  { 'Single story': '$200+',     'Two story': '$270+',     'Three+ story': '$340+' },
+    '1-5':  { 'Single story': [45,75],    'Two story': [65,95],    'Three+ story': [90,130]  },
+    '6-10': { 'Single story': [80,110],   'Two story': [110,150],  'Three+ story': [140,190] },
+    '11-20':{ 'Single story': [115,175],  'Two story': [160,220],  'Three+ story': [200,280] },
+    '20+':  { 'Single story': [200,null], 'Two story': [270,null], 'Three+ story': [340,null] },
   };
   const row = matrix[count];
-  if (!row) { hidePrice(); return; }
-  if (stories && row[stories]) {
-    showPrice(row[stories], 'exterior only · $125 minimum · confirmed before service');
-  } else {
-    showPrice(row['Single story'], 'select home stories for exact range · $125 minimum');
-  }
+  if (!row) { delete priceEstimates['window']; updateCombinedPrice(); return; }
+  const key = (stories && row[stories]) ? stories : 'Single story';
+  const [lo, hi] = row[key];
+  const isPlus = hi === null;
+  priceEstimates['window'] = {
+    low: lo, high: isPlus ? lo : hi, isPlus,
+    note: stories
+      ? 'exterior only · $125 minimum · confirmed before service'
+      : 'select home stories for exact range · $125 minimum',
+  };
+  updateCombinedPrice();
 }
 
 // ─────────────────────────────────────────────
@@ -1183,6 +1214,7 @@ function updateProg() {
 function showSvcForm(reset = false) {
   if (reset) {
     addons = [];
+    priceEstimates = {};
     document.querySelectorAll('[onclick*="addOn"]').forEach(c => c.classList.remove('on'));
     document.querySelectorAll('[onclick*="solo"]').forEach(c => c.classList.remove('on'));
     document.querySelectorAll('.pkg').forEach(p => p.classList.remove('on'));
@@ -1355,6 +1387,11 @@ function reviewRows() {
     }
   });
 
+  const badge = document.getElementById('priceBadge');
+  if (badge && badge.classList.contains('show')) {
+    rows.push({ k: 'Est. Total', v: document.getElementById('priceRange').textContent, highlight: true });
+  }
+
   rows.push({ header: 'Your Information' });
   rows.push({ k: 'Name',    v: (document.getElementById('fname').value + ' ' + document.getElementById('lname').value).trim() });
   rows.push({ k: 'Email',   v: document.getElementById('email').value });
@@ -1372,6 +1409,8 @@ function buildReview() {
   document.getElementById('reviewRows').innerHTML = reviewRows().map(r =>
     r.header
       ? `<div class="review-header">${r.header}</div>`
+      : r.highlight
+      ? `<div class="review-row" style="font-weight:700;background:#fefce8;border-radius:6px;padding:2px 0"><span class="rk">${r.k}</span><span class="rv" style="color:#854d0e">${r.v}</span></div>`
       : `<div class="review-row"><span class="rk">${r.k}</span><span class="rv">${r.v}</span></div>`
   ).join('');
 }
@@ -1413,7 +1452,7 @@ async function submitBooking() {
     referral: document.getElementById('referral').value || '',
     gate_code: document.getElementById('gate').value || '',
     notes:    selSvcs.map(s => details[s]?.notes).filter(Boolean).join(' | ') || '',
-    price_estimate: selSvcs.length === 1 && document.getElementById('priceBadge').classList.contains('show')
+    price_estimate: document.getElementById('priceBadge').classList.contains('show')
       ? document.getElementById('priceRange').textContent
       : '',
   };
