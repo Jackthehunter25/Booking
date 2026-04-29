@@ -729,11 +729,11 @@ async function saveBooking() {
     referral:       document.getElementById('mReferral').value.trim() || null,
   };
 
-  let error;
+  let error, data;
   if (editingId) {
     ({ error } = await adminClient.from('bookings').update(payload).eq('id', editingId));
   } else {
-    ({ error } = await adminClient.from('bookings').insert([payload]));
+    ({ error, data } = await adminClient.from('bookings').insert([payload]).select().single());
   }
 
   btn.disabled    = false;
@@ -743,6 +743,14 @@ async function saveBooking() {
     showToast('Save failed — check console (F12).');
     console.error(error);
     return;
+  }
+
+  if (!editingId && data) {
+    try {
+      await adminClient.functions.invoke('notify-booking', {
+        body: { booking: payload, booking_id: data.id }
+      });
+    } catch (e) { console.warn('Notification failed:', e); }
   }
 
   showToast(editingId ? 'Booking updated.' : 'Booking added.');
